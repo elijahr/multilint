@@ -4,12 +4,8 @@ absolutize_path() {
   echo "$(cd "$(dirname "${path}")" && pwd)/$(basename "${path}")"
 }
 
-is_binary() {
-  [ -z "$(stdbuf -oL head -c 8000 "$1" | grep -m 1 '\0000' | head -n1)" ] && return 1 || return 0
-}
-
-first_byte() {
-  dd bs=1 count=1 if="$1" 2>/dev/null
+has_shebang() {
+  [[ "$(LC_CTYPE=C dd bs=2 count=1 if="$1" 2>/dev/null)" == '#!' ]] && return 0 || return 1
 }
 
 populate_find_args() {
@@ -294,13 +290,9 @@ get_paths_changed_since_commit() {
 get_shebang() {
   local path
   path="${1#path=}"
-  (
-    LC_CTYPE="C"
-    export LC_CTYPE
-    if ! is_binary "${path}" && [[ "$(first_byte "${path}")" == "#" ]]; then
-      head -n1 "$path"
-    fi
-  )
+  if has_shebang "${path}"; then
+    head -n1 "$path"
+  fi
 }
 
 get_tools_for_file() {
