@@ -30,7 +30,7 @@ run_tool() {
   # shellcheck disable=SC2068
   "${cmd[@]}" 1>"${stdout}" 2>"${stderr}" || status=$?
 
-  if [[ "$mode" == "check" ]]; then
+  if [[ $mode == "check" ]]; then
     if [[ ${status} -gt 0 ]]; then
       printf " ↳ %s%s%s\n" "${tool}" "${DOTS:offset}" "❌"
       cat "${stdout}" 2>/dev/null
@@ -221,7 +221,7 @@ run_tool_prettier() {
       if [[ "$(cat "${path}")" == "$(cat "${stdout}")" ]]; then
         printf " ↳ %s%s%s\n" "${tool}" "${DOTS:offset}" "ok"
       else
-        printf " ↳ %s%s%s\n" "${tool}" "${DOTS:offset}" "❌mode=${mode}"
+        printf " ↳ %s%s%s\n" "${tool}" "${DOTS:offset}" "❌"
         IFS= read -r patch < <(diff -u "${path}" "${stdout}")
         echo "${patch}"
         status=1
@@ -324,7 +324,7 @@ run_tool_shfmt() {
   # shellcheck disable=SC2068
   "${cmd[@]}" 1>"${stdout}" 2>"${stderr}" || status=$?
 
-  if [[ "$mode" == "check" ]]; then
+  if [[ $mode == "check" ]]; then
     if [[ ${status} -gt 0 ]]; then
       printf " ↳ %s%s%s\n" "${tool}" "${DOTS:offset}" "❌"
       cat "${stdout}" 2>/dev/null
