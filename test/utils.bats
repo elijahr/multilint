@@ -15,7 +15,7 @@ setup() {
 
   PATH="${LINTBALL_DIR}/bin:${PATH}"
   export PATH
-  DIR="$(mktemp -d)"
+  IFS= read -r DIR < <(mktemp -d)
   export DIR
   cd "${DIR}" || return $?
 }
@@ -150,7 +150,7 @@ teardown() {
   run lintball exec config_load "path=subdir/../.lintballrc.json" 3>&-
   assert_success
 
-  run lintball exec config_load "path=$(pwd)/subdir/../.lintballrc.json" 3>&-
+  run lintball exec config_load "IFS= read -r path < <(pwd)/subdir/../.lintballrc.json" 3>&-
   assert_success
 
   cd subdir
@@ -160,6 +160,6 @@ teardown() {
 
 @test "parse_major_version" {
   version="1.2.3"
-  major_version=$(parse_major_version "${version}")
+  IFS= read -r major_version < <(parse_major_version "${version}")
   assert_equal "${major_version}" "1"
 }

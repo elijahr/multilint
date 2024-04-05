@@ -21,9 +21,9 @@ run_tool() {
   fi
 
   status=0
-  original="$(cat "${path}")"
-  stdout="$(mktemp)"
-  stderr="$(mktemp)"
+  IFS= read -r original < <(cat "${path}")
+  IFS= read -r stdout < <(mktemp)
+  IFS= read -r stderr < <(mktemp)
 
   readarray -t cmd < <(cmd_"${tool//-/_}" "mode=${mode}" "path=${path}" "lang=${lang}")
 
@@ -65,15 +65,15 @@ run_tool_clippy() {
   fi
 
   status=0
-  stdout="$(mktemp)"
-  stderr="$(mktemp)"
+  IFS= read -r stdout < <(mktemp)
+  IFS= read -r stderr < <(mktemp)
 
   readarray -t cmd < <(cmd_clippy "mode=${mode}")
 
   # path is always to a Cargo.toml file,
   # so cd to containing directory to run clippy
   old="${PWD}"
-  dir="$(dirname "${path}")"
+  IFS= read -r dir < <(dirname "${path}")
   status=0
   cd "${dir}" || return $?
 
@@ -117,9 +117,9 @@ run_tool_nimpretty() {
     args+=("${LINTBALL_CHECK_ARGS_NIMPRETTY[@]}")
   fi
 
-  tmp="$(mktemp)"
-  stdout="$(mktemp)"
-  stderr="$(mktemp)"
+  IFS= read -r tmp < <(mktemp)
+  IFS= read -r stdout < <(mktemp)
+  IFS= read -r stderr < <(mktemp)
   status=0
 
   readarray -t cmd < <(interpolate \
@@ -136,7 +136,7 @@ run_tool_nimpretty() {
     if [[ "$(cat "${tmp}")" == "$(cat "${path}")" ]]; then
       printf " ↳ %s%s%s\n" "${tool}" "${DOTS:offset}" "ok"
     else
-      patch="$(diff -u "${path}" "${tmp}")"
+      IFS= read -r patch < <(diff -u "${path}" "${tmp}")
       if [[ -n ${patch} ]]; then
         if [[ ${mode} == "write" ]]; then
           cat "${tmp}" >"${path}"
@@ -165,6 +165,7 @@ run_tool_nimpretty() {
 
 run_tool_prettier() {
   local mode path tool offset cmd stdout stderr status args patch original
+  set -x
   mode="${1#mode=}"
   path="${2#path=}"
 
@@ -176,9 +177,9 @@ run_tool_prettier() {
     return 0
   fi
 
-  stdout="$(mktemp)"
-  stderr="$(mktemp)"
-  original="$(mktemp)"
+  IFS= read -r stdout < <(mktemp)
+  IFS= read -r stderr < <(mktemp)
+  IFS= read -r original < <(mktemp)
   status=0
 
   declare -a args=()
@@ -187,6 +188,8 @@ run_tool_prettier() {
   else
     args+=("${LINTBALL_CHECK_ARGS_PRETTIER[@]}")
   fi
+
+  echo "LINTBALL_CHECK_ARGS_PRETTIER=${LINTBALL_CHECK_ARGS_PRETTIER@Q}"
 
   readarray -t cmd < <(interpolate \
     "tool" "prettier" \
@@ -197,6 +200,7 @@ run_tool_prettier() {
   cp "${path}" "${original}"
 
   # shellcheck disable=SC2068
+  echo "cmd=${cmd@Q}"
   "${cmd[@]}" 1>"${stdout}" 2>"${stderr}" || status=$?
 
   if [[ ${status} -eq 0 ]]; then
@@ -211,7 +215,7 @@ run_tool_prettier() {
         printf " ↳ %s%s%s\n" "${tool}" "${DOTS:offset}" "ok"
       else
         printf " ↳ %s%s%s\n" "${tool}" "${DOTS:offset}" "❌mode=${mode}"
-        patch="$(diff -u "${path}" "${stdout}")"
+        IFS= read -r patch < <(diff -u "${path}" "${stdout}")
         echo "${patch}"
         status=1
       fi
@@ -224,6 +228,7 @@ run_tool_prettier() {
   rm "${stdout}"
   rm "${stderr}"
   rm "${original}"
+  set +x
   return "${status}"
 }
 
@@ -240,9 +245,9 @@ run_tool_eslint() {
     return 0
   fi
 
-  tmp="$(mktemp)"
-  stdout="$(mktemp)"
-  stderr="$(mktemp)"
+  IFS= read -r tmp < <(mktemp)
+  IFS= read -r stdout < <(mktemp)
+  IFS= read -r stderr < <(mktemp)
   status=0
 
   # show colors in output only if interactive shell
@@ -304,9 +309,9 @@ run_tool_shfmt() {
     return 0
   fi
   status=0
-  original="$(cat "${path}")"
-  stdout="$(mktemp)"
-  stderr="$(mktemp)"
+  IFS= read -r original < <(cat "${path}")
+  IFS= read -r stdout < <(mktemp)
+  IFS= read -r stderr < <(mktemp)
 
   readarray -t cmd < <(cmd_"${tool//-/_}" "mode=${mode}" "path=${path}" "lang=${lang}")
 
@@ -356,10 +361,10 @@ run_tool_shellcheck() {
     args+=("${LINTBALL_CHECK_ARGS_SHELLCHECK[@]}")
   fi
 
-  stdout="$(mktemp)"
-  stderr="$(mktemp)"
-  patchfile="$(mktemp)"
-  patcherr="$(mktemp)"
+  IFS= read -r stdout < <(mktemp)
+  IFS= read -r stderr < <(mktemp)
+  IFS= read -r patchfile < <(mktemp)
+  IFS= read -r patcherr < <(mktemp)
   status=0
 
   # show colors in output only if interactive shell
@@ -451,8 +456,8 @@ run_tool_uncrustify() {
     args+=("${LINTBALL_CHECK_ARGS_UNCRUSTIFY[@]}")
   fi
 
-  stdout="$(mktemp)"
-  stderr="$(mktemp)"
+  IFS= read -r stdout < <(mktemp)
+  IFS= read -r stderr < <(mktemp)
   status=0
 
   readarray -t cmd < <(interpolate \
@@ -469,7 +474,7 @@ run_tool_uncrustify() {
     if [[ "$(cat "${stdout}")" == "$(cat "${path}")" ]]; then
       printf " ↳ %s%s%s\n" "${tool}" "${DOTS:offset}" "ok"
     else
-      patch="$(diff -u "${path}" "${stdout}")"
+      IFS= read -r patch < <(diff -u "${path}" "${stdout}")
       if [[ -n ${patch} ]]; then
         if [[ ${mode} == "write" ]]; then
           cat "${stdout}" >"${path}"

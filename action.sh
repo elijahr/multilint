@@ -2,13 +2,13 @@
 
 set -euxo pipefail
 
-check_all_files=$(printenv 'INPUT_CHECK-ALL-FILES')
-committish=$(printenv 'INPUT_COMMITTISH')
-default_branch=$(printenv 'INPUT_DEFAULT-BRANCH')
-workspace=$(printenv 'INPUT_WORKSPACE')
+IFS= read -r check_all_files < <(printenv 'INPUT_CHECK-ALL-FILES')
+IFS= read -r committish < <(printenv 'INPUT_COMMITTISH')
+IFS= read -r default_branch < <(printenv 'INPUT_DEFAULT-BRANCH')
+IFS= read -r workspace < <(printenv 'INPUT_WORKSPACE')
 
 if [[ -n $(command -v jq) ]]; then
-  lintball_version=$(jq -r .version "${GITHUB_ACTION_PATH}/package.json")
+  IFS= read -r lintball_version < <(jq -r .version "${GITHUB_ACTION_PATH}/package.json")
 elif [[ -n $(command -v npm) ]]; then
   # shellcheck disable=SC2016
   lintball_version=$(
@@ -20,7 +20,7 @@ else
   echo "Could not find jq or npm. Please install one of them." >&2
   exit 1
 fi
-lintball_major_version=$(echo "${lintball_version}" | awk -F '.' '{print $1}')
+IFS= read -r lintball_major_version < <(echo "${lintball_version}" | awk -F '.' '{print $1}')
 
 case "${check_all_files}" in
   true | false) ;;
@@ -79,12 +79,12 @@ else
       # A pull request.
       # Check files which have changed between the merge base and the
       # current commit.
-      committish="$(git merge-base -a "refs/remotes/origin/${GITHUB_BASE_REF}" "${GITHUB_SHA}")"
+      IFS= read -r committish < <(git merge-base -a "refs/remotes/origin/${GITHUB_BASE_REF}" "${GITHUB_SHA}")
     else
       # A push to a non-default, non-PR branch.
       # Check files which have changed between default branch and the current
       # commit.
-      committish="$(git merge-base -a "refs/remotes/origin/${default_branch}" "${GITHUB_SHA}")"
+      IFS= read -r committish < <(git merge-base -a "refs/remotes/origin/${default_branch}" "${GITHUB_SHA}")
     fi
   fi
   if [[ -z ${committish} ]]; then

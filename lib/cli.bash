@@ -5,7 +5,7 @@
 cli_entrypoint() {
   local status bash_major_version
   # shellcheck disable=SC2001
-  bash_major_version="$(parse_major_version "text=${BASH_VERSION}")"
+  IFS= read -r bash_major_version < <(parse_major_version "text=${BASH_VERSION}")
 
   if [[ ${bash_major_version} -lt "4" ]]; then
     echo "Unsupported bash version ${bash_major_version}: must be >=4"
@@ -53,7 +53,7 @@ cli_entrypoint() {
     esac
   done
   if [[ -z ${config} ]]; then
-    config=$(config_find "${PWD}" || true)
+    IFS= read -r config < <(config_find "${PWD}" || true)
   fi
   answer=""
   all="all=no"
@@ -209,7 +209,7 @@ on_exit() {
   # Kill consumers
   set +f
   for pidfile in "${tmp}/"*.pid; do
-    pid="$(cat "${pidfile}")"
+    IFS= read -r pid < <(cat "${pidfile}")
     kill -TERM "$pid" 1>/dev/null 2>/dev/null || true
     if ps -p "$pid" >/dev/null; then
       kill -KILL "$(cat "${pidfile}")" 1>/dev/null 2>/dev/null || true
@@ -232,17 +232,18 @@ subcommand_process_files() {
   if [[ ${num_jobs} == "auto" ]]; then
     if command -v nproc >/dev/null; then
       # coreutils
-      num_jobs="$(nproc)"
+      IFS= read -r num_jobs < <(nproc)
     elif command -v sysctl; then
       # macOS
-      num_jobs="$(sysctl -n hw.ncpu)"
+      IFS= read -r num_jobs < <(sysctl -n hw.ncpu)
     else
       # who knows
       num_jobs="4"
     fi
   fi
+  num_jobs=1
 
-  tmp="$(mktemp -d)"
+  IFS= read -r tmp < <(mktemp -d)
 
   trap 'trap - HUP; kill -HUP $$' HUP
   trap 'trap - INT; kill -INT $$' INT
@@ -285,14 +286,15 @@ subcommand_process_files() {
 }
 
 process_file() {
-  local path mode extension tools tool status
+  local path mode extension tools tool lang status
   path="${1#path=}"
   shift
   mode="${1#mode=}"
   shift
-  path="$(normalize_path "path=${path}")"
+  IFS= read -r path < <(normalize_path "path=${path}")
 
-  extension="$(normalize_extension "path=${path}")"
+  IFS= read -r extension < <(normalize_extension "path=${path}")
+
   prettify_path "${path}"
   status=0
   for tool in "$@"; do
@@ -301,9 +303,15 @@ process_file() {
       nimpretty) run_tool_nimpretty "mode=${mode}" "path=${path}" || status=$? ;;
       prettier) run_tool_prettier "mode=${mode}" "path=${path}" || status=$? ;;
       eslint) run_tool_eslint "mode=${mode}" "path=${path}" || status=$? ;;
-      shellcheck) run_tool_shellcheck "mode=${mode}" "path=${path}" "lang=$(get_lang_shellcheck "extension=${extension}")" || status=$? ;;
-      shfmt) run_tool_shfmt "mode=${mode}" "path=${path}" "lang=$(get_lang_shfmt "extension=${extension}")" || status=$? ;;
-      uncrustify) run_tool_uncrustify "mode=${mode}" "path=${path}" "lang=$(get_lang_uncrustify "extension=${extension}")" || status=$? ;;
+      shellcheck)
+        IFS= read -r lang < <(get_lang_shellcheck "extension=${extension}");
+        run_tool_shellcheck "mode=${mode}" "path=${path}" "lang=${lang}" || status=$? ;;
+      shfmt)
+        IFS= read -r lang < <(get_lang_shfmt "extension=${extension}");
+        run_tool_shfmt "mode=${mode}" "path=${path}" "lang=${lang}" || status=$? ;;
+      uncrustify)
+        IFS= read -r lang < <(get_lang_uncrustify "extension=${extension}");
+        run_tool_uncrustify "mode=${mode}" "path=${path}" "lang=${lang}" || status=$? ;;
       *) run_tool "tool=${tool}" "mode=${mode}" "path=${path}" || status=$? ;;
     esac
     if [[ ${status} -ne 0 ]]; then
@@ -318,7 +326,7 @@ subcommand_install_githooks() {
   path="${1#path=}"
   answer="${2#answer=}"
 
-  git_dir="$(find_git_dir "dir=${path}" || true)"
+  IFS= read -r git_dir < <(find_git_dir "dir=${path}" || true)
   if [[ -z ${git_dir} ]]; then
     echo >&2
     echo "Could not find a .git directory at or above ${path}" >&2
@@ -326,7 +334,7 @@ subcommand_install_githooks() {
     return 1
   fi
 
-  hooks_path="$(git --git-dir="${git_dir}" config --local core.hooksPath || true)"
+  IFS= read -r hooks_path < <(git --git-dir="${git_dir}" config --local core.hooksPath || true)
   if [[ -z ${hooks_path} ]]; then
     hooks_path="${path}/.githooks"
   fi
@@ -381,7 +389,7 @@ subcommand_install_tools() {
   fi
 
   for tool in "${tools[@]}"; do
-    installer="$(get_installer_for_tool "tool=${tool}")"
+    IFS= read -r installer < <(get_installer_for_tool "tool=${tool}")
     if [[ -z ${installer} ]]; then
       continue
     fi
@@ -468,12 +476,8 @@ locked_echo() {
     while ! { >"${lockfile}"; } 2>/dev/null; do
       sleep 0.001
     done
-    if [ -n "${stdout}" ]; then
-      echo "${stdout}"
-    fi
-    if [ -n "${stderr}" ]; then
-      echo "${stderr}" >&2
-    fi
+    cat "${tmp}/${consumer}.stdout"
+    cat "${tmp}/${consumer}.stderr" >&2
     rm "${lockfile}"
     set +o noclobber
   )
@@ -507,14 +511,9 @@ consume() {
         echo 1 >>"${tmp}/${consumer}.skipped"
         continue
       fi
-      process_file "path=${path}" "mode=${mode}" "${tools[@]}" \
-        1>"${tmp}/${consumer}.stdout" \
-        2>"${tmp}/${consumer}.stderr" || status=$?
-      stdout=$(cat "${tmp}/${consumer}.stdout" 2>/dev/null || true)
-      stderr=$(cat "${tmp}/${consumer}.stderr" 2>/dev/null || true)
-      if [ -n "${stdout}" ] || [ -n "${stderr}" ]; then
-        locked_echo "stdout=${stdout}" "stderr=${stderr}" "lockfile=${tmp}/output.lock"
-      fi
+      process_file "path=${path}" "mode=${mode}" "${tools[@]}" 1>"${tmp}/${consumer}.stdout" 2>"${tmp}/${consumer}.stderr" || status=$?
+      echo "status=$status"
+      locked_echo "stdout=${tmp}/${consumer}.stdout" "stderr=${tmp}/${consumer}.stderr" "lockfile=${tmp}/output.lock"
     fi
   done; } <"${tmp}/${consumer}.queue"
 
@@ -540,7 +539,7 @@ produce() {
       consumer=1
     else
       # Increment
-      consumer=$((consumer + 1))
+      ((consumer++))
     fi
   done < <(find "${LINTBALL_FIND_ARGS[@]}" 2>"${tmp}/find.stderr")
 

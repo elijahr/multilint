@@ -20,7 +20,7 @@ teardown() {
 }
 
 @test 'lintball install-githooks with --path' {
-  tmp="$(mktemp -d)"
+  IFS= read -r tmp < <(mktemp -d)
   safe_git init "${tmp}"
   run lintball install-githooks --no --path "${tmp}" 3>&-
   assert_success

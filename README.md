@@ -228,12 +228,12 @@ If you have a large project with many files, you may want to limit the number of
       # A pull request.
       # Check files which have changed between the merge base and the
       # current commit.
-      commitish="$(git merge-base -a refs/remotes/origin/$GITHUB_BASE_REF $GITHUB_SHA)"
+      IFS= read -r commitish < <(git merge-base -a refs/remotes/origin/$GITHUB_BASE_REF $GITHUB_SHA)
     else
       # A push to a non-default, non-PR branch.
       # Check files which have changed between default branch and the current
       # commit.
-      commitish="$(git merge-base -a refs/remotes/origin/${default_branch} $GITHUB_SHA)"
+      IFS= read -r commitish < <(git merge-base -a refs/remotes/origin/${default_branch} $GITHUB_SHA)
     fi
 
     if ! lintball check --since "$commitish"; then

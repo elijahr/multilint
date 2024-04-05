@@ -5,7 +5,9 @@ absolutize_path() {
 }
 
 has_shebang() {
-  [[ "$(LC_CTYPE=C dd bs=2 count=1 if="$1" 2>/dev/null)" == '#!' ]] && return 0 || return 1
+  local two_bytes
+  IFS= read -n2 -rd '' two_bytes < "$1"
+  [ "$two_bytes" = '#!' ]
 }
 
 populate_find_args() {
@@ -14,7 +16,7 @@ populate_find_args() {
   LINTBALL_FIND_ARGS=("-L")
 
   for path in "$@"; do
-    normalized_path="$(normalize_path "path=${path}")"
+    IFS= read -r normalized_path < <(normalize_path "path=${path}")
     if [[ -n ${normalized_path} ]]; then
       LINTBALL_FIND_ARGS+=("${normalized_path}")
     fi
@@ -56,9 +58,9 @@ config_find() {
   local path
 
   if [[ $# -eq 0 ]]; then
-    path="$(pwd)"
+    IFS= read -r path < <(pwd)
   else
-    path="$(normalize_path "$1")"
+    IFS= read -r path < <(normalize_path "$1")
   fi
 
   if [[ -f ${path} ]]; then
@@ -82,7 +84,7 @@ config_find() {
       echo "${path}/.lintballrc.json"
       return 0
     else
-      path="$(dirname "${path}")"
+      IFS= read -r path < <(dirname "${path}")
     fi
     [[ ${path} != "/" ]] || break
   done
@@ -91,13 +93,13 @@ config_find() {
 }
 
 config_load() {
-  local path name value line lintballrc_version tool_upper write_args check_args use ignores num_jobs
+  local path name value line lintballrc_version tool tool_upper tmparray tmpstring arrayref
   if [[ -z ${1:-} ]]; then
     echo "config_load: missing path arg" >&2
     return 1
   fi
   path="${1#path=}"
-  path="$(normalize_path "path=${path}")"
+  IFS= read -r path < <(normalize_path "path=${path}")
 
   if [[ ! -f ${path} ]]; then
     echo "config_load: No config file at ${path}" >&2
@@ -110,7 +112,7 @@ config_load() {
   fi
 
   # Verify that the config file matches LINTBALLRC_VERSION
-  lintballrc_version=$(jq --raw-output ".lintballrc_version" 2>/dev/null <"${path}" || true)
+  IFS= read -r lintballrc_version < <(jq --raw-output "try .lintballrc_version catch null" 2>/dev/null <"${path}" || true)
   # shellcheck disable=SC2153
   if [[ ${lintballrc_version} != "${LINTBALLRC_VERSION}" ]]; then
     echo "Cannot use config file ${path@Q}: expected lintballrc_version \"${LINTBALLRC_VERSION}\" but found \"${lintballrc_version}\"" >&2
@@ -118,43 +120,53 @@ config_load() {
   fi
 
   for tool in "${LINTBALL_ALL_TOOLS[@]}"; do
-    tool_upper=$(echo "${tool}" | sed 's/[^a-z0-9]/_/g' | tr '[:lower:]' '[:upper:]')
-    write_args=$(jq --raw-output ".write_args.\"${tool}\"[]" 2>/dev/null <"${path}" || true)
-    if [[ -n ${write_args} ]]; then
-      # overwrite the write args array for this tool
-      readarray -t "LINTBALL_WRITE_ARGS_${tool_upper}" <<<"${write_args}"
+    tool_upper="${tool^^}"
+    tool_upper="${tool_upper//[^a-zA-Z0-9 ]/_}"
+
+    IFS= readarray -t tmparray < <(jq --raw-output "try .write_args.\"${tool}\"[] catch \"<empty>\"" 2>/dev/null <"${path}")
+    if [[ "${tmparray}" != "<empty>" ]]; then
+      # overwrite the write args array for this tool.
+      # declare the dynamic-named global var as an array,
+      # then create a static-named pointer to it in order
+      # to assign a value. this is a workaround for bash
+      # limitations. See https://stackoverflow.com/questions/53987310/how-to-copy-an-array-to-a-new-array-with-dynamic-name
+      declare -n arrayref="LINTBALL_WRITE_ARGS_${tool_upper}"
+      arrayref=("${tmparray[@]}")
     fi
-    check_args=$(jq --raw-output ".check_args.\"${tool}\"[]" 2>/dev/null <"${path}" || true)
-    if [[ -n ${check_args} ]]; then
-      # overwrite the write args array for this tool
-      readarray -t "LINTBALL_CHECK_ARGS_${tool_upper}" <<<"${check_args}"
+    IFS= readarray -t tmparray < <(jq --raw-output "try .check_args.\"${tool}\"[] catch \"<empty>\"" 2>/dev/null <"${path}")
+    if [[ "${tmparray}" != "<empty>" ]]; then
+      # overwrite the write args array for this tool.
+      # declare the dynamic-named global var as an array,
+      # then create a static-named pointer to it in order
+      # to assign a value. this is a workaround for bash
+      # limitations. See https://stackoverflow.com/questions/53987310/how-to-copy-an-array-to-a-new-array-with-dynamic-name
+      declare -n arrayref="LINTBALL_CHECK_ARGS_${tool_upper}"
+      arrayref=("${tmparray[@]}")
     fi
-    use=$(jq --raw-output ".use.\"${tool}\"" 2>/dev/null <"${path}" || true)
-    if [[ ${use} != "null" ]]; then
+    IFS= read -r tmpstring < <(jq --raw-output "try .use.\"${tool}\" catch null" 2>/dev/null <"${path}")
+    if [ -n "${tmpstring}" ]; then
       # overwrite the use value for this tool
       name="LINTBALL_USE_${tool_upper}"
       # shellcheck disable=SC2229
-      read -r "${name}" <<<"${use}"
+      read -r "${name}" <<<"${tmpstring}"
       # shellcheck disable=SC2163
       export "${name}"
     fi
   done
 
-  ignores=$(jq --raw-output ".ignores[]" 2>/dev/null <"${path}" || true)
-  if [ -n "${ignores}" ]; then
+  IFS= readarray -t tmparray < <(jq --raw-output "try .ignores[] catch \"<empty>\"" 2>/dev/null <"${path}")
+  if [[ "${tmparray}" != "<empty>" ]]; then
     # overwrite the global LINTBALL_IGNORE_GLOBS array
-    readarray -t LINTBALL_IGNORE_GLOBS <<<"${ignores}"
+    LINTBALL_IGNORE_GLOBS=("${tmparray[@]}")
   fi
-
-  ignores=$(jq --raw-output '."ignores+="[]' 2>/dev/null <"${path}" || true)
-  if [ -n "${ignores}" ]; then
+  IFS= readarray -t tmparray < <(jq --raw-output "try .\"ignores+=\"[] catch \"<empty>\"" 2>/dev/null <"${path}")
+  if [[ "${tmpstring}" != "<empty>" ]]; then
     # append to the global LINTBALL_IGNORE_GLOBS array
-    readarray -t -O"${#LINTBALL_IGNORE_GLOBS[@]}" LINTBALL_IGNORE_GLOBS <<<"${ignores}"
+    LINTBALL_IGNORE_GLOBS+=("${tmparray[@]}")
   fi
-
-  num_jobs=$(jq --raw-output ".num_jobs" 2>/dev/null <"${path}" || true)
-  if [ "${num_jobs}" != "null" ]; then
-    LINTBALL_NUM_JOBS="${num_jobs}"
+  IFS= read -r tmpstring < <(jq --raw-output 'try .num_jobs catch null' 2>/dev/null <"${path}")
+  if [[ "${tmpstring}" != "null" ]]; then
+    LINTBALL_NUM_JOBS="${tmpstring}"
     export LINTBALL_NUM_JOBS
   fi
 }
@@ -213,14 +225,14 @@ find_git_dir() {
       echo "${dir}/.git"
       break
     else
-      dir="$(dirname "${dir}")"
+      IFS= read -r dir < <(dirname "${dir}")
     fi
   done
 }
 
 get_fully_staged_paths() {
   local staged line
-  staged="$(git diff --name-only --cached | sort)"
+  IFS= read -r staged < <(git diff --name-only --cached | sort)
   while read -r line; do
     # shellcheck disable=SC2143
     if [[ -z "$(git diff --name-only | grep -F "${line}")" ]]; then
@@ -299,8 +311,8 @@ get_tools_for_file() {
   local path extension
 
   path="${1#path=}"
-  path="$(normalize_path "path=${path}")"
-  extension="$(normalize_extension "path=${path}")"
+  IFS= read -r path < <(normalize_path "path=${path}")
+  IFS= read -r extension < <(normalize_extension "path=${path}")
 
   case "$extension" in
     css | graphql | html | jade | java | json | md | mdx | pug | scss | xml)
@@ -399,11 +411,10 @@ normalize_extension() {
   local path lang filename extension
   path="${1#path=}"
 
-  # Check for `# lintball lang=foo` directives
+  # Check for `# lintball lang=foo` overrides
+  lang=""
   if [ -e "$path" ]; then
-    lang="$(grep '^# lintball lang=' "${path}" | sed 's/^# lintball lang=//' | tr '[:upper:]' '[:lower:]')"
-  else
-    lang=""
+    IFS= read -r lang < <(grep '^# lintball lang=' "${path}" | sed 's/^# lintball lang=//' | tr '[:upper:]' '[:lower:]') || true
   fi
 
   case "$lang" in
@@ -418,7 +429,7 @@ normalize_extension() {
       if [ -n "${lang}" ]; then
         extension="${lang}"
       else
-        filename="$(basename "${path}")"
+        IFS= read -r filename < <(basename "${path}")
         if [[ ${filename} == "Gemfile" ]]; then
           extension="rb"
         else
@@ -472,7 +483,7 @@ normalize_path() {
   done
 
   # Strip trailing slash, leading/trailing whitespace
-  path="$(echo "${path}" | sed 's/\/$//' | sed 's/^[[:space:]]*//;s/[[:space:]]*$//')"
+  IFS= read -r path < <(echo "${path}" | sed 's/\/$//' | sed 's/^[[:space:]]*//;s/[[:space:]]*$//')
 
   if [[ $path =~ ^[^/\.] ]]; then
     # ensure relative paths (foo/bar) are prepended with ./ (./foo/bar) to
