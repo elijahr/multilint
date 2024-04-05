@@ -222,8 +222,7 @@ run_tool_prettier() {
         printf " ↳ %s%s%s\n" "${tool}" "${DOTS:offset}" "ok"
       else
         printf " ↳ %s%s%s\n" "${tool}" "${DOTS:offset}" "❌"
-        IFS= read -r patch < <(diff -u "${path}" "${stdout}")
-        echo "${patch}"
+        diff -u "${path}" "${stdout}"
         status=1
       fi
     fi
