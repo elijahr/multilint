@@ -304,14 +304,17 @@ process_file() {
       prettier) run_tool_prettier "mode=${mode}" "path=${path}" || status=$? ;;
       eslint) run_tool_eslint "mode=${mode}" "path=${path}" || status=$? ;;
       shellcheck)
-        IFS= read -r lang < <(get_lang_shellcheck "extension=${extension}");
-        run_tool_shellcheck "mode=${mode}" "path=${path}" "lang=${lang}" || status=$? ;;
+        IFS= read -r lang < <(get_lang_shellcheck "extension=${extension}")
+        run_tool_shellcheck "mode=${mode}" "path=${path}" "lang=${lang}" || status=$?
+        ;;
       shfmt)
-        IFS= read -r lang < <(get_lang_shfmt "extension=${extension}");
-        run_tool_shfmt "mode=${mode}" "path=${path}" "lang=${lang}" || status=$? ;;
+        IFS= read -r lang < <(get_lang_shfmt "extension=${extension}")
+        run_tool_shfmt "mode=${mode}" "path=${path}" "lang=${lang}" || status=$?
+        ;;
       uncrustify)
-        IFS= read -r lang < <(get_lang_uncrustify "extension=${extension}");
-        run_tool_uncrustify "mode=${mode}" "path=${path}" "lang=${lang}" || status=$? ;;
+        IFS= read -r lang < <(get_lang_uncrustify "extension=${extension}")
+        run_tool_uncrustify "mode=${mode}" "path=${path}" "lang=${lang}" || status=$?
+        ;;
       *) run_tool "tool=${tool}" "mode=${mode}" "path=${path}" || status=$? ;;
     esac
     if [[ ${status} -ne 0 ]]; then
@@ -465,10 +468,9 @@ subcommand_clean_tools() {
 }
 
 locked_echo() {
-  local stdout stderr lockfile
-  stdout="${1#stdout=}"
-  stderr="${2#stderr=}"
-  lockfile="${3#lockfile=}"
+  local consumer lockfile
+  consumer="${1#consumer=}"
+  lockfile="${2#lockfile=}"
   # spin lock to show output
   (
     set -o noclobber
@@ -484,7 +486,7 @@ locked_echo() {
 }
 
 consume() {
-  local tmp consumer mode path tools stdout stderr status
+  local tmp consumer mode path tools status
 
   tmp="${1#tmp=}"
   consumer="${2#consumer=}"
@@ -512,8 +514,7 @@ consume() {
         continue
       fi
       process_file "path=${path}" "mode=${mode}" "${tools[@]}" 1>"${tmp}/${consumer}.stdout" 2>"${tmp}/${consumer}.stderr" || status=$?
-      echo "status=$status"
-      locked_echo "stdout=${tmp}/${consumer}.stdout" "stderr=${tmp}/${consumer}.stderr" "lockfile=${tmp}/output.lock"
+      locked_echo "consumer=${consumer}" "lockfile=${tmp}/output.lock"
     fi
   done; } <"${tmp}/${consumer}.queue"
 

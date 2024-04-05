@@ -30,22 +30,33 @@ run_tool() {
   # shellcheck disable=SC2068
   "${cmd[@]}" 1>"${stdout}" 2>"${stderr}" || status=$?
 
-  if [[ "$(cat "${path}")" == "${original}" ]]; then
-    if [[ ${status} -gt 0 ]] || {
-      [[ "$(head -n1 "${stdout}" | head -c4)" == "--- " ]] &&
-        [[ "$(head -n2 "${stdout}" | tail -n 1 | head -c4)" == "+++ " ]]
-    }; then
-      # Some error message or diff
+  if [[ "$mode" == "check" ]]; then
+    if [[ ${status} -gt 0 ]]; then
       printf " ↳ %s%s%s\n" "${tool}" "${DOTS:offset}" "❌"
       cat "${stdout}" 2>/dev/null
       cat "${stderr}" 1>&2
-      status=1
     else
       printf " ↳ %s%s%s\n" "${tool}" "${DOTS:offset}" "ok"
     fi
   else
-    status=0
-    printf " ↳ %s%s%s\n" "${tool}" "${DOTS:offset}" "wrote"
+    # mode == fix
+    if [[ "$(cat "${path}")" == "${original}" ]]; then
+      if [[ ${status} -gt 0 ]] || {
+        [[ "$(head -n1 "${stdout}" | head -c4)" == "--- " ]] &&
+          [[ "$(head -n2 "${stdout}" | tail -n 1 | head -c4)" == "+++ " ]]
+      }; then
+        # Some error message or diff
+        printf " ↳ %s%s%s\n" "${tool}" "${DOTS:offset}" "❌"
+        cat "${stdout}" 2>/dev/null
+        cat "${stderr}" 1>&2
+        status=1
+      else
+        printf " ↳ %s%s%s\n" "${tool}" "${DOTS:offset}" "ok"
+      fi
+    else
+      status=0
+      printf " ↳ %s%s%s\n" "${tool}" "${DOTS:offset}" "wrote"
+    fi
   fi
   rm "${stdout}"
   rm "${stderr}"
@@ -165,7 +176,6 @@ run_tool_nimpretty() {
 
 run_tool_prettier() {
   local mode path tool offset cmd stdout stderr status args patch original
-  set -x
   mode="${1#mode=}"
   path="${2#path=}"
 
@@ -189,8 +199,6 @@ run_tool_prettier() {
     args+=("${LINTBALL_CHECK_ARGS_PRETTIER[@]}")
   fi
 
-  echo "LINTBALL_CHECK_ARGS_PRETTIER=${LINTBALL_CHECK_ARGS_PRETTIER@Q}"
-
   readarray -t cmd < <(interpolate \
     "tool" "prettier" \
     "lintball_dir" "${LINTBALL_DIR}" \
@@ -200,7 +208,6 @@ run_tool_prettier() {
   cp "${path}" "${original}"
 
   # shellcheck disable=SC2068
-  echo "cmd=${cmd@Q}"
   "${cmd[@]}" 1>"${stdout}" 2>"${stderr}" || status=$?
 
   if [[ ${status} -eq 0 ]]; then
@@ -228,7 +235,6 @@ run_tool_prettier() {
   rm "${stdout}"
   rm "${stderr}"
   rm "${original}"
-  set +x
   return "${status}"
 }
 
@@ -318,22 +324,33 @@ run_tool_shfmt() {
   # shellcheck disable=SC2068
   "${cmd[@]}" 1>"${stdout}" 2>"${stderr}" || status=$?
 
-  if [[ "$(cat "${path}")" == "${original}" ]]; then
-    if [[ ${status} -gt 0 ]] || {
-      [[ "$(head -n1 "${stdout}" | head -c4)" == "--- " ]] &&
-        [[ "$(head -n2 "${stdout}" | tail -n 1 | head -c4)" == "+++ " ]]
-    }; then
-      # Some error message or diff
+  if [[ "$mode" == "check" ]]; then
+    if [[ ${status} -gt 0 ]]; then
       printf " ↳ %s%s%s\n" "${tool}" "${DOTS:offset}" "❌"
       cat "${stdout}" 2>/dev/null
       cat "${stderr}" 1>&2
-      status=1
     else
       printf " ↳ %s%s%s\n" "${tool}" "${DOTS:offset}" "ok"
     fi
   else
-    status=0
-    printf " ↳ %s%s%s\n" "${tool}" "${DOTS:offset}" "wrote"
+    # mode == fix
+    if [[ "$(cat "${path}")" == "${original}" ]]; then
+      if [[ ${status} -gt 0 ]] || {
+        [[ "$(head -n1 "${stdout}" | head -c4)" == "--- " ]] &&
+          [[ "$(head -n2 "${stdout}" | tail -n 1 | head -c4)" == "+++ " ]]
+      }; then
+        # Some error message or diff
+        printf " ↳ %s%s%s\n" "${tool}" "${DOTS:offset}" "❌"
+        cat "${stdout}" 2>/dev/null
+        cat "${stderr}" 1>&2
+        status=1
+      else
+        printf " ↳ %s%s%s\n" "${tool}" "${DOTS:offset}" "ok"
+      fi
+    else
+      status=0
+      printf " ↳ %s%s%s\n" "${tool}" "${DOTS:offset}" "wrote"
+    fi
   fi
   rm "${stdout}"
   rm "${stderr}"

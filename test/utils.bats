@@ -150,7 +150,7 @@ teardown() {
   run lintball exec config_load "path=subdir/../.lintballrc.json" 3>&-
   assert_success
 
-  run lintball exec config_load "IFS= read -r path < <(pwd)/subdir/../.lintballrc.json" 3>&-
+  run lintball exec config_load "path=$(pwd)/subdir/../.lintballrc.json" 3>&-
   assert_success
 
   cd subdir
