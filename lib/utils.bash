@@ -86,7 +86,9 @@ config_find() {
     else
       IFS= read -r path < <(dirname "${path}")
     fi
-    [[ ${path} != "/" ]] || break
+    if [[ ${path} != "/" ]]; then
+      break
+    fi
   done
 
   return 1

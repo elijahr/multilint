@@ -68,93 +68,93 @@ teardown() {
   mkdir subdir
   touch subdir/.lintballrc.json
   cd subdir
-  run lintball exec config_find 3>&-
+  run lintball exec config_find # 3>&-
   assert_success
   assert_output "${DIR}/subdir/.lintballrc.json"
 
   # find in parent dir
   mv .lintballrc.json ../.lintballrc.json
-  run lintball exec config_find 3>&-
+  run lintball exec config_find # 3>&-
   assert_success
   assert_output "${DIR}/.lintballrc.json"
 
   # find symlink
   ln -s "${DIR}/.lintballrc.json" .lintballrc.json
-  run lintball exec config_find 3>&-
+  run lintball exec config_find # 3>&-
   assert_success
   assert_output "${DIR}/subdir/.lintballrc.json"
   rm .lintballrc.json
 
-  run lintball exec config_find "path=." 3>&-
+  run lintball exec config_find "path=." # 3>&-
   assert_success
   assert_output "${DIR}/.lintballrc.json"
 
-  run lintball exec config_find "path=" 3>&-
+  run lintball exec config_find "path=" # 3>&-
   assert_failure
   assert_output "Not a valid path arg: "
 
   cd /tmp
-  run lintball exec config_find "path=${DIR}" 3>&-
+  run lintball exec config_find "path=${DIR}" # 3>&-
   assert_success
   assert_output "${DIR}/.lintballrc.json"
 
-  run lintball exec config_find "path=${DIR}/subdir" 3>&-
+  run lintball exec config_find "path=${DIR}/subdir" # 3>&-
   assert_success
   assert_output "${DIR}/.lintballrc.json"
 
-  run lintball exec config_find "path=${DIR}/subdir2" 3>&-
+  run lintball exec config_find "path=${DIR}/subdir2" # 3>&-
   assert_failure
   assert_output "Not a valid path arg: ${DIR}/subdir2"
 
   ln -s "${DIR}/subdir" "${DIR}/subdir2"
-  run lintball exec config_find "path=${DIR}/subdir2" 3>&-
+  run lintball exec config_find "path=${DIR}/subdir2" # 3>&-
   assert_success
   assert_output "${DIR}/.lintballrc.json"
 
   cd "${DIR}" || return $?
   rm .lintballrc.json
-  run lintball exec config_find 3>&-
+  run lintball exec config_find # 3>&-
   assert_failure
   assert_output ""
 }
 
 @test "config_load" {
   # required arg
-  run lintball exec config_load 3>&-
+  run lintball exec config_load # 3>&-
   assert_failure
 
   # no path
-  run lintball exec config_load "path=${DIR}/.lintballrc.json" 3>&-
+  run lintball exec config_load "path=${DIR}/.lintballrc.json" # 3>&-
   assert_failure
 
   # invalid path
-  run lintball exec config_load "path=.lintballrc.json" 3>&-
+  run lintball exec config_load "path=.lintballrc.json" # 3>&-
   assert_failure
 
   # valid path
   cp "${LINTBALL_DIR}/configs/lintballrc-defaults.json" "${DIR}/.lintballrc.json"
-  run lintball exec config_load "path=${DIR}/.lintballrc.json" 3>&-
+  run lintball exec config_load "path=${DIR}/.lintballrc.json" # 3>&-
   assert_success
 
   rm "${DIR}/.lintballrc.json"
 
   # valid path
   cp "${LINTBALL_DIR}/configs/lintballrc-defaults.json" ".lintballrc.json"
-  run lintball exec config_load "path=.lintballrc.json" 3>&-
+  run lintball exec config_load "path=.lintballrc.json" # 3>&-
   assert_success
 
-  run lintball exec config_load "path=./.lintballrc.json" 3>&-
+  run lintball exec config_load "path=./.lintballrc.json" # 3>&-
   assert_success
 
   mkdir subdir
-  run lintball exec config_load "path=subdir/../.lintballrc.json" 3>&-
+  run lintball exec config_load "path=subdir/../.lintballrc.json" # 3>&-
   assert_success
 
-  run lintball exec config_load "path=$(pwd)/subdir/../.lintballrc.json" 3>&-
+  run lintball exec config_load "path=$(pwd)/subdir/../.lintballrc.json" # 3>&-
   assert_success
 
   cd subdir
-  run lintball exec config_load "path=../.lintballrc.json" 3>&-
+  run lintball exec config_load "path=../.lintballrc.json" # 3>&-
   assert_success
 }
 

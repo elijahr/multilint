@@ -53,7 +53,7 @@ cli_entrypoint() {
     esac
   done
   if [[ -z ${config} ]]; then
-    IFS= read -r config < <(config_find "${PWD}" || true)
+    IFS= read -r config < <(config_find "${PWD}") || true
   fi
   answer=""
   all="all=no"

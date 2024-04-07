@@ -15,7 +15,7 @@ teardown() {
 @test 'lintball fix' {
   # Remove all but two files - just an optimization
   find . -type f -not -name 'a.json' -not -name 'a.yml' -delete
-  run lintball fix 3>&-
+  run lintball fix # 3>&-
   assert_success
   assert_line "a.json"
   assert_line "a.yml"
@@ -32,7 +32,7 @@ teardown() {
   safe_git rm a.md
   safe_git commit -m "commit 3"
   safe_git add a.yml
-  run lintball fix --since HEAD~2 3>&-
+  run lintball fix --since HEAD~2 # 3>&-
   assert_success
   assert_line "a.html"
   assert_line "a.xml"
@@ -42,7 +42,7 @@ teardown() {
 }
 
 @test 'lintball fix # lintball lang=bash' {
-  run lintball fix "b_bash" 3>&-
+  run lintball fix "b_bash" # 3>&-
   assert_success
   directive="# lintball lang=bash"
   expected="$(
@@ -70,7 +70,7 @@ EOF
 }
 
 @test 'lintball fix #!/bin/sh' {
-  run lintball fix "a_sh" 3>&-
+  run lintball fix "a_sh" # 3>&-
   assert_success
   expected="$(
     cat <<EOF
@@ -91,7 +91,7 @@ EOF
 }
 
 @test 'lintball fix #!/usr/bin/env bash' {
-  run lintball fix "a_bash" 3>&-
+  run lintball fix "a_bash" # 3>&-
   assert_success
   expected="$(
     cat <<EOF
@@ -118,7 +118,7 @@ EOF
 }
 
 @test 'lintball fix #!/usr/bin/env deno' {
-  run lintball fix "b_js" 3>&-
+  run lintball fix "b_js" # 3>&-
   assert_success
   expected="$(
     cat <<EOF
@@ -140,7 +140,7 @@ EOF
   assert_equal "$(cat "b_js")" "${expected}"
 }
 @test 'lintball fix #!/usr/bin/env node' {
-  run lintball fix "a_js" 3>&-
+  run lintball fix "a_js" # 3>&-
   assert_success
   expected="$(
     cat <<EOF
@@ -163,7 +163,7 @@ EOF
 }
 
 @test 'lintball fix #!/usr/bin/env python3' {
-  run lintball fix "a_py" 3>&-
+  run lintball fix "a_py" # 3>&-
   assert_success
   expected="$(
     cat <<EOF
@@ -191,7 +191,7 @@ EOF
 }
 
 @test 'lintball fix #!/usr/bin/env ruby' {
-  run lintball fix "a_rb" 3>&-
+  run lintball fix "a_rb" # 3>&-
   assert_success
   expected="$(
     cat <<EOF
@@ -206,7 +206,7 @@ EOF
 }
 
 @test 'lintball fix *.bash' {
-  run lintball fix "a.bash" 3>&-
+  run lintball fix "a.bash" # 3>&-
   assert_success
   expected="$(
     cat <<EOF
@@ -231,13 +231,13 @@ EOF
 }
 
 @test 'lintball fix *.bats' {
-  run lintball fix "a.bats" 3>&-
+  run lintball fix "a.bats" # 3>&-
   assert_success
   assert_equal "$(cat "a.bats")" "$(cat "a.bats.expected")"
 }
 
 @test 'lintball fix *.c' {
-  run lintball fix "a.c" 3>&-
+  run lintball fix "a.c" # 3>&-
   assert_success
   expected="$(
     cat <<EOF
@@ -253,7 +253,7 @@ EOF
 }
 
 @test 'lintball fix *.cpp' {
-  run lintball fix "a.cpp" 3>&-
+  run lintball fix "a.cpp" # 3>&-
   assert_success
   expected="$(
     cat <<EOF
@@ -277,7 +277,7 @@ EOF
 }
 
 @test 'lintball fix *.cs' {
-  run lintball fix "a.cs" 3>&-
+  run lintball fix "a.cs" # 3>&-
   assert_success
   expected="$(
     cat <<EOF
@@ -294,7 +294,7 @@ EOF
 }
 
 @test 'lintball fix *.css' {
-  run lintball fix "a.css" 3>&-
+  run lintball fix "a.css" # 3>&-
   assert_success
   expected="$(
     cat <<EOF
@@ -307,7 +307,7 @@ EOF
 }
 
 @test 'lintball fix *.d' {
-  run lintball fix "a.d" 3>&-
+  run lintball fix "a.d" # 3>&-
   assert_success
   expected="$(
     cat <<EOF
@@ -323,7 +323,7 @@ EOF
 }
 
 @test 'lintball fix *.dash' {
-  run lintball fix "a.dash" 3>&-
+  run lintball fix "a.dash" # 3>&-
   assert_success
   expected="$(
     cat <<EOF
@@ -342,7 +342,7 @@ EOF
 }
 
 @test 'lintball fix *.h' {
-  run lintball fix "a.h" 3>&-
+  run lintball fix "a.h" # 3>&-
   assert_success
   expected="$(
     cat <<EOF
@@ -355,7 +355,7 @@ EOF
 }
 
 @test 'lintball fix *.hpp' {
-  run lintball fix "a.hpp" 3>&-
+  run lintball fix "a.hpp" # 3>&-
   assert_success
   expected="$(
     cat <<EOF
@@ -368,7 +368,7 @@ EOF
 }
 
 @test 'lintball fix *.html' {
-  run lintball fix "a.html" 3>&-
+  run lintball fix "a.html" # 3>&-
   assert_success
   expected="$(
     cat <<EOF
@@ -387,7 +387,7 @@ EOF
 }
 
 @test 'lintball fix *.java' {
-  run lintball fix "a.java" 3>&-
+  run lintball fix "a.java" # 3>&-
   assert_success
   expected="$(
     cat <<EOF
@@ -403,7 +403,7 @@ EOF
 }
 
 @test 'lintball fix *.js' {
-  run lintball fix "a.js" 3>&-
+  run lintball fix "a.js" # 3>&-
   assert_success
   expected="$(
     cat <<EOF
@@ -424,7 +424,7 @@ EOF
 }
 
 @test 'lintball fix *.json' {
-  run lintball fix "a.json" 3>&-
+  run lintball fix "a.json" # 3>&-
   assert_success
   expected="$(
     cat <<EOF
@@ -435,7 +435,7 @@ EOF
 }
 
 @test 'lintball fix *.jsx' {
-  run lintball fix "a.jsx" 3>&-
+  run lintball fix "a.jsx" # 3>&-
   assert_success
   expected="$(
     cat <<EOF
@@ -452,7 +452,7 @@ EOF
 }
 
 @test 'lintball fix *.ksh' {
-  run lintball fix "a.ksh" 3>&-
+  run lintball fix "a.ksh" # 3>&-
   assert_success
   expected="$(
     cat <<EOF
@@ -477,7 +477,7 @@ EOF
 }
 
 @test 'lintball fix *.lua' {
-  run lintball fix "a.lua" 3>&-
+  run lintball fix "a.lua" # 3>&-
   assert_success
   expected="$(
     cat <<EOF
@@ -492,7 +492,7 @@ EOF
 }
 
 @test 'lintball fix *.m' {
-  run lintball fix "a.m" 3>&-
+  run lintball fix "a.m" # 3>&-
   assert_success
   expected="$(
     cat <<EOF
@@ -511,7 +511,7 @@ EOF
 }
 
 @test 'lintball fix *.md' {
-  run lintball fix "a.md" 3>&-
+  run lintball fix "a.md" # 3>&-
   assert_success
   expected="$(
     cat <<EOF
@@ -524,7 +524,7 @@ EOF
 }
 
 @test 'lintball fix *.mdx' {
-  run lintball fix "a.mdx" 3>&-
+  run lintball fix "a.mdx" # 3>&-
   assert_success
   expected="$(
     cat <<EOF
@@ -550,7 +550,7 @@ EOF
 }
 
 @test 'lintball fix *.mksh' {
-  run lintball fix "a.mksh" 3>&-
+  run lintball fix "a.mksh" # 3>&-
   assert_success
   expected="$(
     cat <<EOF
@@ -575,7 +575,7 @@ EOF
 }
 
 @test 'lintball fix *.nim' {
-  run lintball fix "a.nim" 3>&-
+  run lintball fix "a.nim" # 3>&-
   assert_success
   expected="$(
     cat <<EOF
@@ -598,7 +598,7 @@ EOF
 }
 
 @test 'lintball fix *.pug' {
-  run lintball fix "a.pug" 3>&-
+  run lintball fix "a.pug" # 3>&-
   assert_success
   expected="$(
     cat <<EOF
@@ -614,7 +614,7 @@ EOF
 }
 
 @test 'lintball fix *.py' {
-  run lintball fix "a.py" 3>&-
+  run lintball fix "a.py" # 3>&-
   assert_success
   expected="$(
     cat <<EOF
@@ -640,7 +640,7 @@ EOF
 }
 
 @test 'lintball fix *.pyi' {
-  run lintball fix "c.pyi" 3>&-
+  run lintball fix "c.pyi" # 3>&-
   assert_success
   expected="$(
     cat <<EOF
@@ -662,7 +662,7 @@ EOF
 }
 
 @test 'lintball fix *.pyx' {
-  run lintball fix "b.pyx" 3>&-
+  run lintball fix "b.pyx" # 3>&-
   assert_success
   expected="$(
     cat <<EOF
@@ -677,7 +677,7 @@ EOF
 }
 
 @test 'lintball fix *.rb' {
-  run lintball fix "a.rb" 3>&-
+  run lintball fix "a.rb" # 3>&-
   assert_success
   expected="$(
     cat <<EOF
@@ -691,7 +691,7 @@ EOF
 }
 
 @test 'lintball fix *.scss' {
-  run lintball fix "a.scss" 3>&-
+  run lintball fix "a.scss" # 3>&-
   assert_success
   expected="$(
     cat <<EOF
@@ -708,7 +708,7 @@ EOF
 }
 
 @test 'lintball fix *.sh' {
-  run lintball fix "a.sh" 3>&-
+  run lintball fix "a.sh" # 3>&-
   assert_success
   expected="$(
     cat <<EOF
@@ -727,7 +727,7 @@ EOF
 }
 
 @test 'lintball fix *.ts' {
-  run lintball fix "a.ts" 3>&-
+  run lintball fix "a.ts" # 3>&-
   assert_success
   expected="$(
     cat <<EOF
@@ -743,7 +743,7 @@ EOF
 }
 
 @test 'lintball fix *.tsx' {
-  run lintball fix "a.tsx" 3>&-
+  run lintball fix "a.tsx" # 3>&-
   assert_success
   expected="$(
     cat <<EOF
@@ -768,7 +768,7 @@ EOF
 }
 
 @test 'lintball fix *.xml' {
-  run lintball fix "a.xml" 3>&-
+  run lintball fix "a.xml" # 3>&-
   assert_success
   expected="$(
     cat <<EOF
@@ -784,7 +784,7 @@ EOF
 }
 
 @test 'lintball fix *.yml' {
-  run lintball fix "a.yml" 3>&-
+  run lintball fix "a.yml" # 3>&-
   assert_success
   expected="$(
     cat <<EOF
@@ -796,12 +796,11 @@ EOF
 }
 
 @test 'lintball fix Cargo.toml' {
-  run lintball fix "Cargo.toml" 3>&-
+  run lintball fix "Cargo.toml" # 3>&-
   expected="$(
     cat <<EOF
 
 #![allow(clippy::stable_sort_primitive)]
-
 
 
 fn unnecessary_sort_by() {
@@ -828,7 +827,7 @@ EOF
 @test 'lintball fix handles implicit path' {
   mkdir foo
   cd foo
-  run lintball fix 3>&-
+  run lintball fix # 3>&-
   assert_success
   assert_line "No handled files found in current directory."
 }
@@ -836,7 +835,7 @@ EOF
 @test 'lintball fix handles . path' {
   mkdir foo
   cd foo
-  run lintball fix . 3>&-
+  run lintball fix . # 3>&-
   assert_success
   assert_line "No handled files found in directory '.'."
 }
@@ -844,7 +843,7 @@ EOF
 @test 'lintball fix handles paths with spaces' {
   mkdir -p "aaa aaa/bbb bbb"
   cp "a.yml" "aaa aaa/bbb bbb/a b.yml"
-  run lintball fix "aaa aaa/bbb bbb/a b.yml" 3>&-
+  run lintball fix "aaa aaa/bbb bbb/a b.yml" # 3>&-
   assert_success
   expected="$(
     cat <<EOF
@@ -856,7 +855,7 @@ EOF
 }
 
 @test 'lintball fix package.json' {
-  run lintball fix "package.json" 3>&-
+  run lintball fix "package.json" # 3>&-
   assert_success
   expected="$(
     cat <<EOF
@@ -877,7 +876,7 @@ EOF
 }
 
 @test 'lintball fix ignored file fails' {
-  run lintball fix "a.txt" 3>&-
+  run lintball fix "a.txt" # 3>&-
   assert_success
   assert_line "File not handled: 'a.txt'."
 }
@@ -885,7 +884,7 @@ EOF
 @test 'lintball fix ignored directory fails' {
   mkdir a_dir
   cp a.yml a_dir/
-  run lintball fix "a_dir" 3>&-
+  run lintball fix "a_dir" # 3>&-
   assert_success
   assert_line "No handled files found in directory 'a_dir'."
 }
@@ -893,7 +892,7 @@ EOF
 @test 'lintball fix ignored file in ignored directory fails' {
   mkdir a_dir
   cp a.txt a_dir/
-  run lintball fix "a_dir" 3>&-
+  run lintball fix "a_dir" # 3>&-
   assert_success
   assert_line "No handled files found in directory 'a_dir'."
 }
@@ -901,17 +900,17 @@ EOF
 @test 'lintball fix handled file in ignored directory fails' {
   mkdir a_dir
   cp a.yml a_dir/
-  run lintball fix "a_dir/a.yml" 3>&-
+  run lintball fix "a_dir/a.yml" # 3>&-
   assert_success
   assert_line "File not handled with current configuration: 'a_dir/a.yml'."
 }
 
 @test 'lintball fix missing' {
-  run lintball fix "missing.txt" 3>&-
+  run lintball fix "missing.txt" # 3>&-
   assert_failure
   assert_line "File not found: 'missing.txt'."
 
-  run lintball fix "missing1.txt" "missing2.txt" 3>&-
+  run lintball fix "missing1.txt" "missing2.txt" # 3>&-
   assert_failure
   assert_line "File not found: 'missing1.txt'."
   assert_line "File not found: 'missing2.txt'."
