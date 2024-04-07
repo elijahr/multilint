@@ -258,6 +258,7 @@ get_installer_for_tool() {
     shfmt) echo "install_shfmt" ;;
     stylua) echo "install_stylua" ;;
     uncrustify) echo "install_uncrustify" ;;
+    *) echo "" ;;
   esac
 }
 
