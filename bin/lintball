@@ -6,7 +6,7 @@ set -uefo pipefail
 shopt -s nullglob
 
 # resolve symlink, for instance, if lintball is linked to /usr/local/bin
-IFS= read -r BIN < <(realpath "${BASH_SOURCE[0]}" 2>/dev/null || readlink -f "${BASH_SOURCE[0]}" 2>/dev/null || readlink "${BASH_SOURCE[0]}" 2>/dev/null || echo "${BASH_SOURCE[0]}" || true)
+IFS= read -r BIN < <(realpath "${BASH_SOURCE[0]}" 2>/dev/null || readlink -f "${BASH_SOURCE[0]}" 2>/dev/null || readlink "${BASH_SOURCE[0]}" 2>/dev/null || echo "${BASH_SOURCE[0]}") || true
 
 case "${BIN}" in
   ../*)

@@ -6,7 +6,7 @@ absolutize_path() {
 
 has_shebang() {
   local two_bytes
-  IFS= read -n2 -rd '' two_bytes < "$1"
+  IFS= read -n2 -rd '' two_bytes <"$1"
   [ "$two_bytes" = '#!' ]
 }
 
@@ -86,7 +86,7 @@ config_find() {
     else
       IFS= read -r path < <(dirname "${path}")
     fi
-    if [[ ${path} != "/" ]]; then
+    if [[ ${path} == "/" ]]; then
       break
     fi
   done
@@ -114,7 +114,7 @@ config_load() {
   fi
 
   # Verify that the config file matches LINTBALLRC_VERSION
-  IFS= read -r lintballrc_version < <(jq --raw-output "try .lintballrc_version catch null" 2>/dev/null <"${path}" || true)
+  IFS= read -r lintballrc_version < <(jq --raw-output "try .lintballrc_version catch null" 2>/dev/null <"${path}") || true
   # shellcheck disable=SC2153
   if [[ ${lintballrc_version} != "${LINTBALLRC_VERSION}" ]]; then
     echo "Cannot use config file ${path@Q}: expected lintballrc_version \"${LINTBALLRC_VERSION}\" but found \"${lintballrc_version}\"" >&2
@@ -126,23 +126,29 @@ config_load() {
     tool_upper="${tool_upper//[^a-zA-Z0-9 ]/_}"
 
     IFS= readarray -t tmparray < <(jq --raw-output "try .write_args.\"${tool}\"[] catch \"<empty>\"" 2>/dev/null <"${path}")
-    if [[ "${tmparray}" != "<empty>" ]]; then
+    # shellcheck disable=SC2128
+    if [[ ${tmparray} != "<empty>" ]]; then
       # overwrite the write args array for this tool.
       # declare the dynamic-named global var as an array,
       # then create a static-named pointer to it in order
       # to assign a value. this is a workaround for bash
       # limitations. See https://stackoverflow.com/questions/53987310/how-to-copy-an-array-to-a-new-array-with-dynamic-name
+      # shellcheck disable=SC2178
       declare -n arrayref="LINTBALL_WRITE_ARGS_${tool_upper}"
+      # shellcheck disable=SC2034
       arrayref=("${tmparray[@]}")
     fi
     IFS= readarray -t tmparray < <(jq --raw-output "try .check_args.\"${tool}\"[] catch \"<empty>\"" 2>/dev/null <"${path}")
-    if [[ "${tmparray}" != "<empty>" ]]; then
+    # shellcheck disable=SC2128
+    if [[ ${tmparray} != "<empty>" ]]; then
       # overwrite the write args array for this tool.
       # declare the dynamic-named global var as an array,
       # then create a static-named pointer to it in order
       # to assign a value. this is a workaround for bash
       # limitations. See https://stackoverflow.com/questions/53987310/how-to-copy-an-array-to-a-new-array-with-dynamic-name
+      # shellcheck disable=SC2178
       declare -n arrayref="LINTBALL_CHECK_ARGS_${tool_upper}"
+      # shellcheck disable=SC2034
       arrayref=("${tmparray[@]}")
     fi
     IFS= read -r tmpstring < <(jq --raw-output "try .use.\"${tool}\" catch null" 2>/dev/null <"${path}")
@@ -156,18 +162,20 @@ config_load() {
     fi
   done
 
-  IFS= readarray -t tmparray < <(jq --raw-output "try .ignores[] catch \"<empty>\"" 2>/dev/null <"${path}")
-  if [[ "${tmparray}" != "<empty>" ]]; then
+  IFS= readarray -t tmparray < <(jq --raw-output 'try .ignores[] catch "<empty>"' 2>/dev/null <"${path}")
+  # shellcheck disable=SC2128
+  if [[ ${tmparray} != "<empty>" ]]; then
     # overwrite the global LINTBALL_IGNORE_GLOBS array
     LINTBALL_IGNORE_GLOBS=("${tmparray[@]}")
   fi
-  IFS= readarray -t tmparray < <(jq --raw-output "try .\"ignores+=\"[] catch \"<empty>\"" 2>/dev/null <"${path}")
-  if [[ "${tmpstring}" != "<empty>" ]]; then
+  IFS= readarray -t tmparray < <(jq --raw-output 'try ."ignores+="[] catch "<empty>"' 2>/dev/null <"${path}")
+  # shellcheck disable=SC2128
+  if [[ ${tmparray} != "<empty>" ]]; then
     # append to the global LINTBALL_IGNORE_GLOBS array
     LINTBALL_IGNORE_GLOBS+=("${tmparray[@]}")
   fi
   IFS= read -r tmpstring < <(jq --raw-output 'try .num_jobs catch null' 2>/dev/null <"${path}")
-  if [[ "${tmpstring}" != "null" ]]; then
+  if [[ ${tmpstring} != "null" ]]; then
     LINTBALL_NUM_JOBS="${tmpstring}"
     export LINTBALL_NUM_JOBS
   fi
@@ -233,8 +241,7 @@ find_git_dir() {
 }
 
 get_fully_staged_paths() {
-  local staged line
-  IFS= read -r staged < <(git diff --name-only --cached | sort)
+  local line
   while read -r line; do
     # shellcheck disable=SC2143
     if [[ -z "$(git diff --name-only | grep -F "${line}")" ]]; then
@@ -243,7 +250,7 @@ get_fully_staged_paths() {
         echo "${line}"
       fi
     fi
-  done <<<"$staged"
+  done < <(git diff --name-only --cached | sort)
 }
 
 get_installer_for_tool() {

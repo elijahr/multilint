@@ -329,7 +329,7 @@ subcommand_install_githooks() {
   path="${1#path=}"
   answer="${2#answer=}"
 
-  IFS= read -r git_dir < <(find_git_dir "dir=${path}" || true)
+  IFS= read -r git_dir < <(find_git_dir "dir=${path}") || true
   if [[ -z ${git_dir} ]]; then
     echo >&2
     echo "Could not find a .git directory at or above ${path}" >&2
@@ -337,7 +337,7 @@ subcommand_install_githooks() {
     return 1
   fi
 
-  IFS= read -r hooks_path < <(git --git-dir="${git_dir}" config --local core.hooksPath || true)
+  IFS= read -r hooks_path < <(git --git-dir="${git_dir}" config --local core.hooksPath) || true
   if [[ -z ${hooks_path} ]]; then
     hooks_path="${path}/.githooks"
   fi
