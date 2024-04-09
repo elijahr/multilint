@@ -23,7 +23,7 @@ RUN echo 'APT::Install-Suggests "0";' >> /etc/apt/apt.conf.d/99no-install-recomm
       build-essential bzip2 ca-certificates cmake coreutils \
       curl gcc git libbz2-1.0 libbz2-dev libc-dev libffi-dev libreadline-dev \
       libssl1.1 libssl-dev lzma make ncurses-dev openssh-client openssl perl \
-      uuid xz-utils zlib1g zlib1g-dev && \
+      procps uuid xz-utils zlib1g zlib1g-dev && \
     rm -rf /var/lib/apt/lists/* && \
     rm -rf /tmp/* && \
     rm -rf /var/tmp/*
