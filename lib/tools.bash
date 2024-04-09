@@ -21,7 +21,7 @@ run_tool() {
   fi
 
   status=0
-  IFS= read -r original < <(cat "${path}")
+  original=$(cat "${path}")
   IFS= read -r stdout < <(mktemp)
   IFS= read -r stderr < <(mktemp)
 
@@ -147,7 +147,7 @@ run_tool_nimpretty() {
     if [[ "$(cat "${tmp}")" == "$(cat "${path}")" ]]; then
       printf " ↳ %s%s%s\n" "${tool}" "${DOTS:offset}" "ok"
     else
-      IFS= read -r patch < <(diff -u "${path}" "${tmp}")
+      patch=$(diff -u "${path}" "${tmp}")
       if [[ -n ${patch} ]]; then
         if [[ ${mode} == "write" ]]; then
           cat "${tmp}" >"${path}"
@@ -314,7 +314,7 @@ run_tool_shfmt() {
     return 0
   fi
   status=0
-  IFS= read -r original < <(cat "${path}")
+  original=$(cat "${path}")
   IFS= read -r stdout < <(mktemp)
   IFS= read -r stderr < <(mktemp)
 
@@ -347,6 +347,12 @@ run_tool_shfmt() {
         printf " ↳ %s%s%s\n" "${tool}" "${DOTS:offset}" "ok"
       fi
     else
+      echo ">>> $path"
+      cat "${path}"
+      echo "<<< $path"
+      echo ">>> original"
+      echo "${original}"
+      echo "<<< original"
       status=0
       printf " ↳ %s%s%s\n" "${tool}" "${DOTS:offset}" "wrote"
     fi
@@ -476,7 +482,7 @@ run_tool_uncrustify() {
   IFS= read -r stderr < <(mktemp)
   status=0
 
-  readarray -t cmd < <(interpolate \
+  cmd=$(interpolate \
     "tool" "uncrustify" \
     "lintball_dir" "${LINTBALL_DIR}" \
     "lang" "${lang}" \
@@ -490,7 +496,7 @@ run_tool_uncrustify() {
     if [[ "$(cat "${stdout}")" == "$(cat "${path}")" ]]; then
       printf " ↳ %s%s%s\n" "${tool}" "${DOTS:offset}" "ok"
     else
-      IFS= read -r patch < <(diff -u "${path}" "${stdout}")
+      patch=$(diff -u "${path}" "${stdout}")
       if [[ -n ${patch} ]]; then
         if [[ ${mode} == "write" ]]; then
           cat "${stdout}" >"${path}"
