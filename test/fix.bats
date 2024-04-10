@@ -20,7 +20,7 @@ teardown() {
   assert_line "a.json"
   assert_line "a.yml"
   assert [ "$(echo "${output}" | grep -cF " ↳ prettier...........................wrote" -c)" -eq 2 ]
-  assert [ "$(echo "${output}" | grep -cF " ↳ yamllint...........................wrote" -c)" -eq 1 ]
+  assert [ "$(echo "${output}" | grep -cF " ↳ yamllint...........................ok" -c)" -eq 1 ]
 }
 
 @test 'lintball fix --since HEAD~1' {
@@ -38,7 +38,7 @@ teardown() {
   assert_line "a.xml"
   assert_line "a.yml"
   assert [ "$(echo "${output}" | grep -cF " ↳ prettier...........................wrote")" -eq 3 ]
-  assert [ "$(echo "${output}" | grep -cF " ↳ yamllint...........................wrote")" -eq 1 ]
+  assert [ "$(echo "${output}" | grep -cF " ↳ yamllint...........................ok")" -eq 1 ]
 }
 
 @test 'lintball fix # lintball lang=bash' {
