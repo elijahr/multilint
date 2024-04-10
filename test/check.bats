@@ -24,7 +24,7 @@ teardown() {
   run lintball fix # 3>&-
   assert_success
   assert [ "$(echo "${output}" | grep -cF " ↳ prettier...........................wrote" -c)" -eq 2 ]
-  assert [ "$(echo "${output}" | grep -cF " ↳ yamllint...........................wrote" -c)" -eq 1 ]
+  assert [ "$(echo "${output}" | grep -cF " ↳ yamllint...........................ok" -c)" -eq 1 ]
   run lintball check # 3>&-
   assert_success
   assert [ "$(echo "${output}" | grep -cF " ↳ prettier...........................ok" -c)" -eq 2 ]

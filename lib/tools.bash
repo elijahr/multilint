@@ -347,12 +347,6 @@ run_tool_shfmt() {
         printf " ↳ %s%s%s\n" "${tool}" "${DOTS:offset}" "ok"
       fi
     else
-      echo ">>> $path"
-      cat "${path}"
-      echo "<<< $path"
-      echo ">>> original"
-      echo "${original}"
-      echo "<<< original"
       status=0
       printf " ↳ %s%s%s\n" "${tool}" "${DOTS:offset}" "wrote"
     fi
@@ -482,8 +476,8 @@ run_tool_uncrustify() {
   IFS= read -r stderr < <(mktemp)
   status=0
 
-  cmd=$(interpolate \
-    "tool" "uncrustify" \
+  readarray -t cmd < <(interpolate \
+    "tool" "${LINTBALL_DIR}/tools/bin/uncrustify" \
     "lintball_dir" "${LINTBALL_DIR}" \
     "lang" "${lang}" \
     "path" "${path}" \
