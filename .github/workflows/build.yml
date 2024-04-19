@@ -6,7 +6,7 @@ on:
   pull_request:
     branches: ["*"]
   push:
-    branches: ["*"]
+    branches: ["devel"]
     tags: ["*"]
 
 jobs:
