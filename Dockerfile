@@ -155,7 +155,7 @@ COPY --from=lintball-install-uncrustify "${LINTBALL_DIR}/tools/bin/uncrustify" "
 # - git for pre-commit hook
 # - libyaml for ruby
 # - procps for ps command, used in lintball
-RUN apt update && apt install -y parallel jq git libyaml procps && \
+RUN apt update && apt install -y parallel jq git libyaml-0-2 procps && \
     rm -rf /var/lib/apt/lists/* && \
     rm -rf /tmp/* && \
     rm -rf /var/tmp/*
