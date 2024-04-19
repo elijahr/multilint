@@ -98,9 +98,9 @@ jobs:
         run: lintball --help
 
   build-docker:
-    name: "build, test, & push docker"
+    name: "build & push docker"
     runs-on: ubuntu-latest
-    needs: [install-local, install-global]
+    needs: [lint, test, install-local, install-global]
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -117,5 +117,5 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      - name: Build, test, push
-        run: ./scripts/build-test-push.bash
+      - name: "Build & push"
+        run: ./scripts/build-and-push-docker-images.bash

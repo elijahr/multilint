@@ -38,6 +38,7 @@ docker buildx build \
 # Lint the codebase
 export LINTBALL_WORKSPACE="${GITHUB_WORKSPACE:-${PWD}}"
 
+# Sanity check
 docker run \
   --volume "${LINTBALL_WORKSPACE:-.}:/workspace:cached" \
   --volume ./bin:/lintball/bin:cached \
@@ -58,16 +59,16 @@ docker buildx build \
   --load \
   .
 
-# Run the tests
-docker run \
-  --volume "${LINTBALL_WORKSPACE:-.}:/workspace:cached" \
-  --volume ./bin:/lintball/bin:cached \
-  --volume ./configs:/lintball/configs:cached \
-  --volume ./lib:/lintball/lib:cached \
-  --volume ./scripts:/lintball/scripts:cached \
-  --volume ./test:/lintball/test:cached \
-  elijahru/lintball:test \
-  npm run test
+# # Run the tests
+# docker run \
+#   --volume "${LINTBALL_WORKSPACE:-.}:/workspace:cached" \
+#   --volume ./bin:/lintball/bin:cached \
+#   --volume ./configs:/lintball/configs:cached \
+#   --volume ./lib:/lintball/lib:cached \
+#   --volume ./scripts:/lintball/scripts:cached \
+#   --volume ./test:/lintball/test:cached \
+#   elijahru/lintball:test \
+#   npm run test
 
 declare -a tags=()
 
