@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 # Script to build, test, and push lintball docker images.
 #
@@ -37,7 +37,16 @@ docker buildx build \
 
 # Lint the codebase
 export LINTBALL_WORKSPACE="${GITHUB_WORKSPACE:-${PWD}}"
-docker-compose run check
+
+docker run \
+  --volume "${LINTBALL_WORKSPACE:-.}:/workspace:cached" \
+  --volume ./bin:/lintball/bin:cached \
+  --volume ./configs:/lintball/configs:cached \
+  --volume ./lib:/lintball/lib:cached \
+  --volume ./scripts:/lintball/scripts:cached \
+  --volume ./test:/lintball/test:cached \
+  elijahru/lintball:latest \
+  lintball check
 
 # Build the test image
 docker buildx build \
@@ -50,8 +59,15 @@ docker buildx build \
   .
 
 # Run the tests
-export LINTBALL_WORKSPACE="${GITHUB_WORKSPACE:-${PWD}}"
-docker-compose run test
+docker run \
+  --volume "${LINTBALL_WORKSPACE:-.}:/workspace:cached" \
+  --volume ./bin:/lintball/bin:cached \
+  --volume ./configs:/lintball/configs:cached \
+  --volume ./lib:/lintball/lib:cached \
+  --volume ./scripts:/lintball/scripts:cached \
+  --volume ./test:/lintball/test:cached \
+  elijahru/lintball:test \
+  npm run test
 
 declare -a tags=()
 
@@ -76,14 +92,17 @@ else
   push_platforms="${platform}"
 fi
 
-for tag in "${tags[@]}"; do
-  # build for the current platform
-  docker buildx build \
-    --platform="${push_platforms}" \
-    --progress=plain \
-    --cache-from=elijahru/lintball \
-    --tag="elijahru/lintball:${tag}" \
-    --target=lintball-latest \
-    --push \
-    .
-done
+echo "Pushing tags ${tags@Q}"
+echo "Pushing platforms ${push_platforms@Q}"
+
+# for tag in "${tags[@]}"; do
+#   # build for the current platform
+#   docker buildx build \
+#     --platform="${push_platforms}" \
+#     --progress=plain \
+#     --cache-from=elijahru/lintball \
+#     --tag="elijahru/lintball:${tag}" \
+#     --target=lintball-latest \
+#     --push \
+#     .
+# done

@@ -4,8 +4,8 @@ set -euo pipefail
 
 # Ensure ARM64 homebrew and /usr/local/bin are in PATH before system PATH.
 # This finds /usr/local/bin/lintball and finds newer Homebrew-installed bash.
-export PATH
 PATH="/opt/homebrew/bin:/usr/local/bin:${PATH}"
+export PATH
 
 if [[ -z ${LINTBALL_DIR:-} ]]; then
   if [[ -f "${PWD}/bin/lintball" ]]; then

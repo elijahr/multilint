@@ -5,25 +5,23 @@
 
 
 ## <base image> ###############################################################
-FROM --platform=$TARGETPLATFORM debian:bullseye-slim as lintball-base
+FROM --platform=$TARGETPLATFORM debian:bookworm-slim as lintball-base
 ENV LINTBALL_DIR=/lintball
 
 # Install minimal deps as quickly as possible
 RUN echo 'APT::Install-Suggests "0";' >> /etc/apt/apt.conf.d/99no-install-recommends && \
     echo 'APT::Install-Recommends "0";' >> /etc/apt/apt.conf.d/99no-install-recommends && \
     apt update && apt install -y gnupg && \
-    echo "deb http://ppa.launchpad.net/apt-fast/stable/ubuntu bionic main" >> /etc/apt/sources.list.d/apt-fast.list && \
-    echo "deb-src http://ppa.launchpad.net/apt-fast/stable/ubuntu bionic main" >> /etc/apt/sources.list.d/apt-fast.list && \
+    echo "deb http://ppa.launchpad.net/apt-fast/stable/ubuntu jammy main" >> /etc/apt/sources.list.d/apt-fast.list && \
+    echo "deb-src http://ppa.launchpad.net/apt-fast/stable/ubuntu jammy main" >> /etc/apt/sources.list.d/apt-fast.list && \
     apt-key adv --keyserver keyserver.ubuntu.com --recv-keys A2166B8DE8BDC3367D1901C11EE2FF37CA8DA16B && \
     echo debconf apt-fast/maxdownloads string 16 | debconf-set-selections && \
     echo debconf apt-fast/dlflag boolean true | debconf-set-selections && \
     echo debconf apt-fast/aptmanager string apt-get | debconf-set-selections && \
-    echo "deb-src http://deb.debian.org/debian bullseye main" >> /etc/apt/sources.list && \
+    echo "deb-src http://deb.debian.org/debian bookworm main" >> /etc/apt/sources.list && \
     apt update && apt install -y apt-fast && apt-fast install -y \
-      build-essential bzip2 ca-certificates cmake coreutils \
-      curl gcc git libbz2-1.0 libbz2-dev libc-dev libffi-dev libreadline-dev \
-      libssl1.1 libssl-dev lzma make ncurses-dev openssh-client openssl perl \
-      procps uuid xz-utils zlib1g zlib1g-dev && \
+      build-essential bzip2 ca-certificates cmake coreutils curl gcc git libbz2-1.0 libbz2-dev libc6-dev libffi-dev libreadline-dev \
+      libssl3 libssl-dev libyaml-0-2 libyaml-dev lzma make ncurses-dev openssh-client openssl perl procps uuid xz-utils zlib1g zlib1g-dev && \
     rm -rf /var/lib/apt/lists/* && \
     rm -rf /tmp/* && \
     rm -rf /var/tmp/*
@@ -67,7 +65,7 @@ COPY tools/package.json "${LINTBALL_DIR}/tools/package.json"
 COPY tools/package-lock.json "${LINTBALL_DIR}/tools/package-lock.json"
 RUN bash -c "set -euxo pipefail && source ${LINTBALL_DIR}/lib/env.bash && source ${LINTBALL_DIR}/lib/install.bash && install_nodejs"
 
-FROM --platform=$TARGETPLATFORM debian:bullseye-slim as lintball-composite
+FROM --platform=$TARGETPLATFORM debian:bookworm-slim as lintball-composite
 ENV LINTBALL_DIR=/lintball
 COPY --from=lintball-base "${LINTBALL_DIR}/tools/asdf" "${LINTBALL_DIR}/tools/asdf"
 COPY --from=lintball-install-nimpretty "${LINTBALL_DIR}/tools/bin/nimpretty" "${LINTBALL_DIR}/tools/bin/nimpretty"
@@ -105,7 +103,7 @@ RUN bash -c "set -euxo pipefail && source ${LINTBALL_DIR}/lib/env.bash && source
 ## <latest image> #############################################################
 # Output image does not inherit from lintball-base because we don't need all
 # of the installed debian packages.
-FROM --platform=$TARGETPLATFORM debian:bullseye-slim as lintball-latest
+FROM --platform=$TARGETPLATFORM debian:bookworm-slim as lintball-latest
 ENV LINTBALL_DIR=/lintball
 RUN echo 'source "${LINTBALL_DIR}/lib/env.bash"' >> ~/.bashrc
 COPY --from=lintball-composite "${LINTBALL_DIR}" "${LINTBALL_DIR}"
@@ -113,7 +111,8 @@ COPY --from=lintball-composite "${LINTBALL_DIR}" "${LINTBALL_DIR}"
 # Install:
 # - jq for parsing lintballrc.json
 # - git for pre-commit hook
-RUN apt update && apt install -y jq git && \
+# - procps for ps command, used in lintball
+RUN apt update && apt install -y parallel jq git procps && \
     rm -rf /var/lib/apt/lists/* && \
     rm -rf /tmp/* && \
     rm -rf /var/tmp/*
@@ -124,6 +123,7 @@ CMD ["lintball", "check", "."]
 ## </latest image> ############################################################
 
 ## <test image> ###############################################################
+## The test image contains ruby and uncrustify
 FROM --platform=$TARGETPLATFORM lintball-base as lintball-install-ruby
 ENV LINTBALL_DIR=/lintball
 COPY lib/installers/ruby.bash "${LINTBALL_DIR}/lib/installers/ruby.bash"
@@ -150,17 +150,24 @@ COPY --from=lintball-install-rust "${LINTBALL_DIR}/tools/asdf/installs/rust" "${
 COPY --from=lintball-install-rust "${LINTBALL_DIR}/tools/asdf/plugins/rust" "${LINTBALL_DIR}/tools/asdf/plugins/rust"
 COPY --from=lintball-install-uncrustify "${LINTBALL_DIR}/tools/bin/uncrustify" "${LINTBALL_DIR}/tools/bin/uncrustify"
 
+# Install:
+# - jq for parsing lintballrc.json
+# - git for pre-commit hook
+# - libyaml for ruby
+# - procps for ps command, used in lintball
+RUN apt update && apt install -y parallel jq git libyaml procps && \
+    rm -rf /var/lib/apt/lists/* && \
+    rm -rf /tmp/* && \
+    rm -rf /var/tmp/*
+
 RUN bash -c "source ${LINTBALL_DIR}/lib/env.bash && \
-    apt update && apt install -y parallel git && \
     cd ${LINTBALL_DIR}/tools && \
     asdf reshim && \
     npm ci --include=dev && \
     npm cache clean --force && \
     asdf reshim && \
-    rm -rf /var/lib/apt/lists/* && \
     rm -rf /tmp/* && \
     rm -rf /var/tmp/*"
 
 WORKDIR "${LINTBALL_DIR}/tools"
-CMD ["npm", "run", "test"]
 ## </test image> ##############################################################
