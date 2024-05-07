@@ -326,61 +326,115 @@ get_tools_for_file() {
 
   case "$extension" in
     css | graphql | html | jade | java | json | md | mdx | pug | scss | xml)
-      echo "prettier"
+      if [[ $LINTBALL_USE_PRETTIER != "false" ]]; then
+        echo "prettier"
+      fi
       ;;
     bash | bats | dash | ksh | mksh | sh)
-      echo "shfmt"
-      echo "shellcheck"
+      if [[ $LINTBALL_USE_SHFMT != "false" ]]; then
+        echo "shfmt"
+      fi
+      if [[ $LINTBALL_USE_SHELLCHECK != "false" ]]; then
+        echo "shellcheck"
+      fi
       ;;
     c | cpp | cs | d | h | hpp | m | mm | M)
-      echo "uncrustify"
+      if [[ $LINTBALL_USE_UNCRUSTIFY != "false" ]]; then
+        echo "uncrustify"
+      fi
       ;;
     cjs | js | jsx | ts | tsx)
-      echo "prettier"
-      echo "eslint"
+      if [[ $LINTBALL_USE_PRETTIER != "false" ]]; then
+        echo "prettier"
+      fi
+      if [[ $LINTBALL_USE_ESLINT != "false" ]]; then
+        echo "eslint"
+      fi
       ;;
     lua)
-      echo "stylua"
+      if [[ $LINTBALL_USE_STYLUA != "false" ]]; then
+        echo "stylua"
+      fi
       ;;
     nim)
-      echo "nimpretty"
+      if [[ $LINTBALL_USE_NIMPRETTY != "false" ]]; then
+        echo "nimpretty"
+      fi
       ;;
     py)
-      echo "docformatter"
-      echo "autopep8"
-      echo "autoflake"
-      echo "isort"
-      echo "black"
-      echo "pylint"
+      if [[ $LINTBALL_USE_DOCFORMATTER != "false" ]]; then
+        echo "docformatter"
+      fi
+      if [[ $LINTBALL_USE_AUTOPEP8 != "false" ]]; then
+        echo "autopep8"
+      fi
+      if [[ $LINTBALL_USE_AUTOFLAKE != "false" ]]; then
+        echo "autoflake"
+      fi
+      if [[ $LINTBALL_USE_ISORT != "false" ]]; then
+        echo "isort"
+      fi
+      if [[ $LINTBALL_USE_BLACK != "false" ]]; then
+        echo "black"
+      fi
+      if [[ $LINTBALL_USE_PYLINT != "false" ]]; then
+        echo "pylint"
+      fi
       ;;
     pyi)
-      echo "docformatter"
-      echo "autopep8"
-      echo "autoflake"
-      echo "pylint"
+      if [[ $LINTBALL_USE_DOCFORMATTER != "false" ]]; then
+        echo "docformatter"
+      fi
+      if [[ $LINTBALL_USE_AUTOPEP8 != "false" ]]; then
+        echo "autopep8"
+      fi
+      if [[ $LINTBALL_USE_AUTOFLAKE != "false" ]]; then
+        echo "autoflake"
+      fi
+      if [[ $LINTBALL_USE_PYLINT != "false" ]]; then
+        echo "pylint"
+      fi
       ;;
     pyx | pxd | pxi)
-      echo "docformatter"
-      echo "autopep8"
-      echo "autoflake"
+      if [[ $LINTBALL_USE_DOCFORMATTER != "false" ]]; then
+        echo "docformatter"
+      fi
+      if [[ $LINTBALL_USE_AUTOPEP8 != "false" ]]; then
+        echo "autopep8"
+      fi
+      if [[ $LINTBALL_USE_AUTOFLAKE != "false" ]]; then
+        echo "autoflake"
+      fi
       ;;
     rb)
-      echo "prettier"
-      echo "rubocop"
+      if [[ $LINTBALL_USE_PRETTIER != "false" ]]; then
+        echo "prettier"
+      fi
+      if [[ $LINTBALL_USE_RUBOCOP != "false" ]]; then
+        echo "rubocop"
+      fi
       ;;
     rs)
-      echo "clippy"
-      ;;
-    toml)
-      if [[ "$(basename "${path}")" == "Cargo.toml" ]]; then
-        # Special case for Rust package; clippy analyzes an entire crate, not a
-        # single path, so when a Cargo.toml is encountered, use clippy.
+      if [[ $LINTBALL_USE_CLIPPY != "false" ]]; then
         echo "clippy"
       fi
       ;;
+    toml)
+      if [[ $LINTBALL_USE_CLIPPY != "false" ]]; then
+        if [[ "$(basename "${path}")" == "Cargo.toml" ]]; then
+          # Special case for Rust package; clippy analyzes an entire crate, not a
+          # single path, so when a Cargo.toml is encountered, use clippy.
+          echo "clippy"
+        fi
+      fi
+      ;;
     yml)
-      echo "prettier"
-      echo "yamllint"
+      if [[ $LINTBALL_USE_PRETTIER != "false" ]]; then
+        echo "prettier"
+      fi
+      if [[ $LINTBALL_USE_YAMLLINT != "false" ]]; then
+        echo "yamllint"
+      fi
       ;;
   esac
 }

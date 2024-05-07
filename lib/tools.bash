@@ -16,7 +16,7 @@ run_tool() {
   offset="${#tool}"
   use="LINTBALL_USE_$(echo "${tool//-/_}" | tr '[:lower:]' '[:upper:]')"
   if [[ ${!use} == "false" ]]; then
-    printf " ↳ %s%s%s\n" "${tool}" "${DOTS:offset}" "off"
+    # printf " ↳ %s%s%s\n" "${tool}" "${DOTS:offset}" "off"
     return 0
   fi
 
@@ -71,7 +71,7 @@ run_tool_clippy() {
   tool="clippy"
   offset="${#tool}"
   if [[ ${LINTBALL_USE_CLIPPY} == "false" ]]; then
-    printf " ↳ %s%s%s\n" "${tool}" "${DOTS:offset}" "off"
+    # printf " ↳ %s%s%s\n" "${tool}" "${DOTS:offset}" "off"
     return 0
   fi
 
@@ -117,7 +117,7 @@ run_tool_nimpretty() {
   offset="${#tool}"
 
   if [[ ${LINTBALL_USE_NIMPRETTY} == "false" ]]; then
-    printf " ↳ %s%s%s\n" "${tool}" "${DOTS:offset}" "off"
+    # printf " ↳ %s%s%s\n" "${tool}" "${DOTS:offset}" "off"
     return 0
   fi
 
@@ -183,7 +183,7 @@ run_tool_prettier() {
   offset="${#tool}"
 
   if [[ ${LINTBALL_USE_PRETTIER} == "false" ]]; then
-    printf " ↳ %s%s%s\n" "${tool}" "${DOTS:offset}" "off"
+    # printf " ↳ %s%s%s\n" "${tool}" "${DOTS:offset}" "off"
     return 0
   fi
 
@@ -246,7 +246,7 @@ run_tool_eslint() {
   offset="${#tool}"
 
   if [[ ${LINTBALL_USE_ESLINT} == "false" ]]; then
-    printf " ↳ %s%s%s\n" "${tool}" "${DOTS:offset}" "off"
+    # printf " ↳ %s%s%s\n" "${tool}" "${DOTS:offset}" "off"
     return 0
   fi
 
@@ -310,7 +310,7 @@ run_tool_shfmt() {
 
   offset="${#tool}"
   if [[ ${LINTBALL_USE_SHFMT} == "false" ]]; then
-    printf " ↳ %s%s%s\n" "${tool}" "${DOTS:offset}" "off"
+    # printf " ↳ %s%s%s\n" "${tool}" "${DOTS:offset}" "off"
     return 0
   fi
   status=0
@@ -366,7 +366,7 @@ run_tool_shellcheck() {
   offset="${#tool}"
 
   if [[ ${LINTBALL_USE_SHELLCHECK} == "false" ]]; then
-    printf " ↳ %s%s%s\n" "${tool}" "${DOTS:offset}" "off"
+    # printf " ↳ %s%s%s\n" "${tool}" "${DOTS:offset}" "off"
     return 0
   fi
 
@@ -461,7 +461,7 @@ run_tool_uncrustify() {
   offset="${#tool}"
 
   if [[ ${LINTBALL_USE_UNCRUSTIFY} == "false" ]]; then
-    printf " ↳ %s%s%s\n" "${tool}" "${DOTS:offset}" "off"
+    # printf " ↳ %s%s%s\n" "${tool}" "${DOTS:offset}" "off"
     return 0
   fi
 
