@@ -5,7 +5,7 @@
 
 
 ## <base image> ###############################################################
-FROM --platform=$TARGETPLATFORM debian:bookworm-slim as lintball-base
+FROM --platform=$TARGETPLATFORM bitnami/minideb:bookworm as lintball-base
 ENV LINTBALL_DIR=/lintball
 
 # Install minimal deps as quickly as possible
@@ -65,7 +65,7 @@ COPY tools/package.json "${LINTBALL_DIR}/tools/package.json"
 COPY tools/package-lock.json "${LINTBALL_DIR}/tools/package-lock.json"
 RUN bash -c "set -euxo pipefail && source ${LINTBALL_DIR}/lib/env.bash && source ${LINTBALL_DIR}/lib/install.bash && install_nodejs"
 
-FROM --platform=$TARGETPLATFORM debian:bookworm-slim as lintball-composite
+FROM --platform=$TARGETPLATFORM bitnami/minideb:bookworm as lintball-composite
 ENV LINTBALL_DIR=/lintball
 COPY --from=lintball-base "${LINTBALL_DIR}/tools/asdf" "${LINTBALL_DIR}/tools/asdf"
 COPY --from=lintball-install-nimpretty "${LINTBALL_DIR}/tools/bin/nimpretty" "${LINTBALL_DIR}/tools/bin/nimpretty"
@@ -103,19 +103,22 @@ RUN bash -c "set -euxo pipefail && source ${LINTBALL_DIR}/lib/env.bash && source
 ## <latest image> #############################################################
 # Output image does not inherit from lintball-base because we don't need all
 # of the installed debian packages.
-FROM --platform=$TARGETPLATFORM debian:bookworm-slim as lintball-latest
+FROM --platform=$TARGETPLATFORM bitnami/minideb:bookworm as lintball-latest
 ENV LINTBALL_DIR=/lintball
-RUN echo 'source "${LINTBALL_DIR}/lib/env.bash"' >> ~/.bashrc
+COPY docker/01nodoc /etc/dpkg/dpkg.cfg.d/01nodoc
+COPY docker/02nocache /etc/apt/apt.conf.d/02nocache
 COPY --from=lintball-composite "${LINTBALL_DIR}" "${LINTBALL_DIR}"
 
 # Install:
 # - jq for parsing lintballrc.json
 # - git for pre-commit hook
 # - procps for ps command, used in lintball
-RUN apt update && apt install -y parallel jq git procps && \
-    rm -rf /var/lib/apt/lists/* && \
-    rm -rf /tmp/* && \
-    rm -rf /var/tmp/*
+RUN echo 'source "${LINTBALL_DIR}/lib/env.bash"' >> ~/.bashrc && \
+    apt update && apt install -yq \
+        --no-install-suggests --no-install-recommends --allow-downgrades \
+        --allow-remove-essential --allow-change-held-packages \
+        jq git procps && \
+    IS_DOCKER_BUILD=1 /lintball/scripts/cleanup-docker-layer.sh
 
 ENTRYPOINT ["/lintball/scripts/docker-entrypoint.bash"]
 WORKDIR "/workspace"
@@ -141,33 +144,27 @@ ENV LINTBALL_DIR=/lintball
 COPY lib/installers/uncrustify.bash "${LINTBALL_DIR}/lib/installers/uncrustify.bash"
 RUN bash -c "set -euxo pipefail && source ${LINTBALL_DIR}/lib/env.bash && source ${LINTBALL_DIR}/lib/install.bash && install_uncrustify"
 
-FROM --platform=$TARGETPLATFORM lintball-latest as lintball-test
-ENV LINTBALL_DIR=/lintball
-COPY --from=lintball-install-ruby "${LINTBALL_DIR}/tools/.bundle" "${LINTBALL_DIR}/tools/asdf/.bundle"
-COPY --from=lintball-install-ruby "${LINTBALL_DIR}/tools/asdf/installs/ruby" "${LINTBALL_DIR}/tools/asdf/installs/ruby"
-COPY --from=lintball-install-ruby "${LINTBALL_DIR}/tools/asdf/plugins/ruby" "${LINTBALL_DIR}/tools/asdf/plugins/ruby"
-COPY --from=lintball-install-rust "${LINTBALL_DIR}/tools/asdf/installs/rust" "${LINTBALL_DIR}/tools/asdf/installs/rust"
-COPY --from=lintball-install-rust "${LINTBALL_DIR}/tools/asdf/plugins/rust" "${LINTBALL_DIR}/tools/asdf/plugins/rust"
-COPY --from=lintball-install-uncrustify "${LINTBALL_DIR}/tools/bin/uncrustify" "${LINTBALL_DIR}/tools/bin/uncrustify"
+# FROM --platform=$TARGETPLATFORM lintball-latest as lintball-test
+# ENV LINTBALL_DIR=/lintball
+# COPY --from=lintball-install-ruby "${LINTBALL_DIR}/tools/.bundle" "${LINTBALL_DIR}/tools/asdf/.bundle"
+# COPY --from=lintball-install-ruby "${LINTBALL_DIR}/tools/asdf/installs/ruby" "${LINTBALL_DIR}/tools/asdf/installs/ruby"
+# COPY --from=lintball-install-ruby "${LINTBALL_DIR}/tools/asdf/plugins/ruby" "${LINTBALL_DIR}/tools/asdf/plugins/ruby"
+# COPY --from=lintball-install-rust "${LINTBALL_DIR}/tools/asdf/installs/rust" "${LINTBALL_DIR}/tools/asdf/installs/rust"
+# COPY --from=lintball-install-rust "${LINTBALL_DIR}/tools/asdf/plugins/rust" "${LINTBALL_DIR}/tools/asdf/plugins/rust"
+# COPY --from=lintball-install-uncrustify "${LINTBALL_DIR}/tools/bin/uncrustify" "${LINTBALL_DIR}/tools/bin/uncrustify"
 
-# Install:
-# - jq for parsing lintballrc.json
-# - git for pre-commit hook
-# - libyaml for ruby
-# - procps for ps command, used in lintball
-RUN apt update && apt install -y parallel jq git libyaml-0-2 procps && \
-    rm -rf /var/lib/apt/lists/* && \
-    rm -rf /tmp/* && \
-    rm -rf /var/tmp/*
+# # Install:
+# # - jq for parsing lintballrc.json
+# # - git for pre-commit hook
+# # - libyaml for ruby
+# # - procps for ps command, used in lintball
+# RUN apt update && apt install -y jq git libyaml-0-2 procps && \
+#     bash -c "source ${LINTBALL_DIR}/lib/env.bash && \
+#     cd ${LINTBALL_DIR}/tools && \
+#     asdf reshim && \
+#     npm ci --include=dev && \
+#     npm cache clean --force && \
+#     asdf reshim"
 
-RUN bash -c "source ${LINTBALL_DIR}/lib/env.bash && \
-    cd ${LINTBALL_DIR}/tools && \
-    asdf reshim && \
-    npm ci --include=dev && \
-    npm cache clean --force && \
-    asdf reshim && \
-    rm -rf /tmp/* && \
-    rm -rf /var/tmp/*"
-
-WORKDIR "${LINTBALL_DIR}/tools"
-## </test image> ##############################################################
+# WORKDIR "${LINTBALL_DIR}/tools"
+# ## </test image> ##############################################################

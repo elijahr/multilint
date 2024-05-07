@@ -1,0 +1,4 @@
+# /etc/apt/apt.conf.d/02nocache
+
+Dir::Cache "var/cache/apt";
+Dir::Cache::archives "archives/";

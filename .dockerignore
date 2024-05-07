@@ -4,6 +4,7 @@
 !.lintballrc.json
 !bin/
 !configs/
+!docker/
 !githooks/
 !lib/
 !LICENSE

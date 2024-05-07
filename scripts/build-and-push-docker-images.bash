@@ -11,6 +11,8 @@
 
 set -uexo pipefail
 
+cd "$(dirname "${BASH_SOURCE[0]}")/.."
+
 case $(uname -m) in
   x86_64 | amd64)
     current_platform="linux/amd64"
@@ -46,14 +48,14 @@ if [[ ${git_branch_or_tag_name:-} =~ ^v?(([0-9]+)\.([0-9]+)\.([0-9]+)(-([a-zA-Z0
     docker_tags+=("latest" "v${major}" "v${major}.${minor}" "v${major}.${minor}.${patch}")
   else
     # pre-release, just use the tag
-    main_tag="${git_branch_or_tag_name//[^a-zA-Z0-9]/-}"
+    main_tag="git--${git_branch_or_tag_name//[^a-zA-Z0-9]/-}"
     docker_tags+=("$main_tag")
   fi
   # tag so push to all platforms
   push_platforms="linux/amd64,linux/arm64"
 else
   # not a semantic version, just use the branch or tag
-  main_tag="${git_branch_or_tag_name//[^a-zA-Z0-9]/-}"
+  main_tag="git--${git_branch_or_tag_name//[^a-zA-Z0-9]/-}"
   docker_tags+=("$main_tag")
 fi
 
@@ -62,6 +64,7 @@ docker buildx build \
   --platform="$current_platform" \
   --progress=plain \
   --cache-from=elijahru/lintball \
+  --cache-from="elijahru/lintball:${main_tag}" \
   --tag="elijahru/lintball:${main_tag}" \
   --target=lintball-latest \
   --load \
@@ -87,6 +90,8 @@ docker run \
 #   --platform="$platforms_csv" \
 #   --progress=plain \
 #   --cache-from=elijahru/lintball \
+#   --cache-from="elijahru/lintball:${main_tag}" \
+#   --cache-from=elijahru/lintball:test \
 #   --tag=elijahru/lintball:test \
 #   --target=lintball-test \
 #   --load \
@@ -114,8 +119,8 @@ for tag in "${docker_tags[@]}"; do
   docker buildx build \
     --platform="$push_platforms" \
     --progress=plain \
-    --cache-from="elijahru/lintball:${main_tag}" \
     --cache-from=elijahru/lintball \
+    --cache-from="elijahru/lintball:${main_tag}" \
     --tag="elijahru/lintball:${tag}" \
     --target=lintball-latest \
     --push \
