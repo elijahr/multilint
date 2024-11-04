@@ -41,6 +41,19 @@ teardown() {
   assert [ "$(echo "${output}" | grep -cF " ↳ yamllint...........................ok")" -eq 1 ]
 }
 
+@test 'lintball fix --since HEAD~1 (not a git repo)' {
+  run rm -rf .git
+  run lintball fix --since HEAD~2 # 3>&-
+  assert_failure
+  assert_line "Not in a git repository, cannot use --since"
+}
+
+@test 'lintball fix --since HEAD~1 (not a valid git commit)' {
+  run lintball fix --since deadbeef # 3>&-
+  assert_failure
+  assert_line "Invalid commit: deadbeef"
+}
+
 @test 'lintball fix # lintball lang=bash' {
   run lintball fix "b_bash" # 3>&-
   assert_success

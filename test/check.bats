@@ -57,6 +57,19 @@ teardown() {
   assert_success
 }
 
+@test 'lintball check --since HEAD~1 (not a git repo)' {
+  run rm -rf .git
+  run lintball check --since HEAD~2 # 3>&-
+  assert_failure
+  assert_line "Not in a git repository, cannot use --since"
+}
+
+@test 'lintball check --since HEAD~1 (not a valid git commit)' {
+  run lintball check --since deadbeef # 3>&-
+  assert_failure
+  assert_line "Invalid commit: deadbeef"
+}
+
 @test 'lintball check # lintball lang=bash' {
   run lintball check "b_bash" # 3>&-
   assert_failure
