@@ -10,25 +10,25 @@ ENV LINTBALL_DIR=/lintball
 
 # Install minimal deps as quickly as possible
 RUN echo 'APT::Install-Suggests "0";' >> /etc/apt/apt.conf.d/99no-install-recommends && \
-    echo 'APT::Install-Recommends "0";' >> /etc/apt/apt.conf.d/99no-install-recommends && \
-    apt update && apt install -y gnupg && \
-    echo "deb http://ppa.launchpad.net/apt-fast/stable/ubuntu jammy main" >> /etc/apt/sources.list.d/apt-fast.list && \
-    echo "deb-src http://ppa.launchpad.net/apt-fast/stable/ubuntu jammy main" >> /etc/apt/sources.list.d/apt-fast.list && \
-    apt-key adv --keyserver keyserver.ubuntu.com --recv-keys A2166B8DE8BDC3367D1901C11EE2FF37CA8DA16B && \
-    echo debconf apt-fast/maxdownloads string 16 | debconf-set-selections && \
-    echo debconf apt-fast/dlflag boolean true | debconf-set-selections && \
-    echo debconf apt-fast/aptmanager string apt-get | debconf-set-selections && \
-    echo "deb-src http://deb.debian.org/debian bookworm main" >> /etc/apt/sources.list && \
-    apt update && apt install -y apt-fast && apt-fast install -y \
-      build-essential bzip2 ca-certificates cmake coreutils curl gcc git libbz2-1.0 libbz2-dev libc6-dev libffi-dev libreadline-dev \
-      libssl3 libssl-dev libyaml-0-2 libyaml-dev lzma make ncurses-dev openssh-client openssl perl procps uuid xz-utils zlib1g zlib1g-dev && \
-    rm -rf /var/lib/apt/lists/* && \
-    rm -rf /tmp/* && \
-    rm -rf /var/tmp/*
+  echo 'APT::Install-Recommends "0";' >> /etc/apt/apt.conf.d/99no-install-recommends && \
+  apt update && apt install -y gnupg && \
+  echo "deb http://ppa.launchpad.net/apt-fast/stable/ubuntu jammy main" >> /etc/apt/sources.list.d/apt-fast.list && \
+  echo "deb-src http://ppa.launchpad.net/apt-fast/stable/ubuntu jammy main" >> /etc/apt/sources.list.d/apt-fast.list && \
+  apt-key adv --keyserver keyserver.ubuntu.com --recv-keys A2166B8DE8BDC3367D1901C11EE2FF37CA8DA16B && \
+  echo debconf apt-fast/maxdownloads string 16 | debconf-set-selections && \
+  echo debconf apt-fast/dlflag boolean true | debconf-set-selections && \
+  echo debconf apt-fast/aptmanager string apt-get | debconf-set-selections && \
+  echo "deb-src http://deb.debian.org/debian bookworm main" >> /etc/apt/sources.list && \
+  apt update && apt install -y apt-fast && apt-fast install -y \
+  build-essential bzip2 ca-certificates cmake coreutils curl gcc git libbz2-1.0 libbz2-dev libc6-dev libffi-dev libreadline-dev \
+  libssl3 libssl-dev libyaml-0-2 libyaml-dev lzma make ncurses-dev openssh-client openssl perl procps uuid xz-utils zlib1g zlib1g-dev && \
+  rm -rf /var/lib/apt/lists/* && \
+  rm -rf /tmp/* && \
+  rm -rf /var/tmp/*
 
 RUN mkdir -p "${LINTBALL_DIR}/configs" && \
-    mkdir -p "${LINTBALL_DIR}/lib/installers" && \
-    mkdir -p "${LINTBALL_DIR}/tools/bin"
+  mkdir -p "${LINTBALL_DIR}/lib/installers" && \
+  mkdir -p "${LINTBALL_DIR}/tools/bin"
 
 # Basic scripts for installing/configuring asdf
 COPY configs/asdfrc "${LINTBALL_DIR}/configs/asdfrc"
@@ -114,15 +114,15 @@ COPY --from=lintball-composite "${LINTBALL_DIR}" "${LINTBALL_DIR}"
 # - git for pre-commit hook
 # - procps for ps command, used in lintball
 RUN echo 'source "${LINTBALL_DIR}/lib/env.bash"' >> ~/.bashrc && \
-    apt update && apt install -yq \
-        --no-install-suggests --no-install-recommends --allow-downgrades \
-        --allow-remove-essential --allow-change-held-packages \
-        jq git procps && \
-    IS_DOCKER_BUILD=1 /lintball/scripts/cleanup-docker-layer.sh
+  apt update && apt install -yq \
+  --no-install-suggests --no-install-recommends --allow-downgrades \
+  --allow-remove-essential --allow-change-held-packages \
+  jq git procps && \
+  IS_DOCKER_BUILD=1 /lintball/scripts/cleanup-docker-layer.sh
 
 ENTRYPOINT ["/lintball/scripts/docker-entrypoint.bash"]
 WORKDIR "/workspace"
-CMD ["lintball", "check", "."]
+CMD ["/bin/sh"]
 ## </latest image> ############################################################
 
 ## <test image> ###############################################################

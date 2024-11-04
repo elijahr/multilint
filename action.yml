@@ -18,11 +18,13 @@ inputs:
     description: "The filesystem path to check"
     required: true
     default: "${{ GITHUB_WORKSPACE }}"
-    # outputs:
-    #   time:
-    #     description: 'The time we greeted you'
 runs:
-  using: "docker"
-  image: "Dockerfile"
-  args:
-    - ${{ inputs.who-to-greet }}
+  using: "composite"
+  steps:
+    - run: ./action.sh
+      shell: bash
+      env:
+        INPUT_CHECK_ALL_FILES: ${{ inputs.check-all-files }}
+        INPUT_COMMITTISH: ${{ inputs.committish }}
+        INPUT_DEFAULT_BRANCH: ${{ inputs.default-branch }}
+        INPUT_WORKSPACE: ${{ inputs.workspace }}

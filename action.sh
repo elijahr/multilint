@@ -1,10 +1,14 @@
 #!/bin/bash
 
+# This script is used to run lintball via GitHub Actions.
+# It is used internally by the elijahr/lintball action and runs lintball
+# in a Docker container.
+
 set -euxo pipefail
 
-IFS= read -r check_all_files < <(printenv 'INPUT_CHECK-ALL-FILES')
+IFS= read -r check_all_files < <(printenv 'INPUT_CHECK_ALL_FILES')
 IFS= read -r committish < <(printenv 'INPUT_COMMITTISH')
-IFS= read -r default_branch < <(printenv 'INPUT_DEFAULT-BRANCH')
+IFS= read -r default_branch < <(printenv 'INPUT_DEFAULT_BRANCH')
 IFS= read -r workspace < <(printenv 'INPUT_WORKSPACE')
 
 if [[ -n $(command -v jq) ]]; then
