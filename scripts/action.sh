@@ -11,6 +11,10 @@ IFS= read -r committish < <(printenv 'INPUT_COMMITTISH')
 IFS= read -r default_branch < <(printenv 'INPUT_DEFAULT_BRANCH')
 IFS= read -r workspace < <(printenv 'INPUT_WORKSPACE')
 
+if [[ -z ${workspace} ]]; then
+  workspace="${GITHUB_WORKSPACE}"
+fi
+
 LINTBALL_DIR=$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)
 
 case "${check_all_files}" in
