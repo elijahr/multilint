@@ -116,6 +116,11 @@ docker run \
   --mount type=bind,source="${workspace}",target=/workspace,readonly \
   --mount type=bind,source="${workspace}/.git",target=/workspace/.git,readonly \
   lintball:local /bin/sh -c 'find /workspace'
+echo bbb
+docker run \
+  --mount type=bind,source="${workspace}",target=/workspace,readonly \
+  --mount type=bind,source="${workspace}/.git",target=/workspace/.git,readonly \
+  lintball:local /bin/sh -c 'command -v git && git status'
 
 status=0
 docker run \
