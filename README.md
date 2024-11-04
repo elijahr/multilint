@@ -21,7 +21,6 @@ Most software projects consist of more than one programming language. There's so
 | bats         | `*.bats`, `#!/usr/bin/env bats`          |                               [shellcheck][1], [shfmt][2]                                |
 | CSS          | `*.css`                                  |                                      [prettier][4]                                       |
 | Cython       | `*.pyx`, `*.pxd`, `*.pxi`                |                     [autoflake][5], [autopep8][6], [docformatter][7]                     |
-| dash         | `*.dash`, `#!/usr/bin/env dash`          |                               [shellcheck][1], [shfmt][2]                                |
 | GraphQL      | `*.graphql`                              |                                      [prettier][4]                                       |
 | HTML         | `*.html`                                 |                                      [prettier][4]                                       |
 | JavaScript   | `*.js`, `*.cjs`, `#!/usr/bin/env node`   |                                [eslint][9],[prettier][4]                                 |

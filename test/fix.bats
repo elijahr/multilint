@@ -234,25 +234,6 @@ EOF
   assert_equal "$(cat "a.css")" "${expected}"
 }
 
-@test 'lintball fix *.dash' {
-  run lintball fix "a.dash" # 3>&-
-  assert_success
-  expected="$(
-    cat <<EOF
-a() {
-  echo
-
-}
-
-b() {
-
-  echo
-}
-EOF
-  )"
-  assert_equal "$(cat "a.dash")" "${expected}"
-}
-
 @test 'lintball fix *.html' {
   run lintball fix "a.html" # 3>&-
   assert_success

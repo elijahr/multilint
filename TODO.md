@@ -9,7 +9,6 @@
 - [ ] GNU Parallel support.
 - [x] Add missing test coverage:
   - [x] css
-  - [x] dash
   - [x] html
   - [x] jsx
   - [x] ksh

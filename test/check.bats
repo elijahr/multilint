@@ -129,14 +129,6 @@ teardown() {
   assert_success
 }
 
-@test 'lintball check *.dash' {
-  run lintball check "a.dash" # 3>&-
-  assert_failure
-  run lintball fix "a.dash"   # 3>&-
-  run lintball check "a.dash" # 3>&-
-  assert_success
-}
-
 @test 'lintball check *.html' {
   run lintball check "a.html" # 3>&-
   assert_failure

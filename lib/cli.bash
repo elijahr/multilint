@@ -587,7 +587,6 @@ Supported tools:
   | bats         |                                       shellcheck, shfmt |
   | CSS          |                                                prettier |
   | Cython       |                       autoflake, autopep8, docformatter |
-  | dash         |                                       shellcheck, shfmt |
   | GraphQL      |                                                prettier |
   | HTML         |                                                prettier |
   | JavaScript   |                                        eslint, prettier |
@@ -614,7 +613,6 @@ Detection methods:
   | bats         |                         *.bats, #!/usr/bin/env bats |
   | CSS          |                                               *.css |
   | Cython       |                                 *.pyx, *.pxd, *.pxi |
-  | dash         |                         *.dash, #!/usr/bin/env dash |
   | GraphQL      |                                           *.graphql |
   | HTML         |                                              *.html |
   | JavaScript   |                    *.js, *.cjs, #!/usr/bin/env node |

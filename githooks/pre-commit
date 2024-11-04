@@ -4,12 +4,13 @@
 
 set -eu
 
-LINTBALL_DIR=$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)
+parent_dir=$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)
 
-if [[ ! -f "${LINTBALL_DIR}/lintballrc-defaults.json" ]]; then
+if [[ -f "${parent_dir}/configs/lintballrc-defaults.json" ]]; then
   # This is lintball itself
-  "${LINTBALL_DIR}"/scripts/build-local-docker-image.sh
-  docker run --rm -v "${PWD}:/workspace" lintball:local lintball pre-commit
+  "${parent_dir}"/scripts/build-local-docker-image.sh
+  docker run --rm -v "${parent_dir}:/workspace" lintball:local lintball pre-commit
 else
-  docker run --rm -v "${PWD}:/workspace" elijahru/lintball:latest lintball pre-commit
+  workspace=$(cd "${GIT_DIR}"/.. && pwd)
+  docker run --rm -v "${workspace}:/workspace" elijahru/lintball:latest lintball pre-commit
 fi

@@ -14,4 +14,4 @@ asdf reshim
 npm ci --include=dev
 npm cache clean --force
 asdf reshim
-npm run test
+exec npm run test -- "$@"

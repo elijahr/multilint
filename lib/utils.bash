@@ -280,7 +280,7 @@ get_lang_shfmt() {
   extension="${1#extension=}"
   case "$extension" in
     ksh) echo "mksh" ;;
-    sh | dash) echo "posix" ;;
+    sh) echo "posix" ;;
     *) echo "$extension" ;;
   esac
 }
@@ -315,7 +315,7 @@ get_tools_for_file() {
         echo "prettier"
       fi
       ;;
-    bash | bats | dash | ksh | mksh | sh)
+    bash | bats | ksh | mksh | sh)
       if [[ $LINTBALL_USE_SHFMT != "false" ]]; then
         echo "shfmt"
       fi
@@ -441,17 +441,13 @@ normalize_extension() {
         extension="${lang}"
       else
         IFS= read -r filename < <(basename "${path}")
-        if [[ ${filename} == "Gemfile" ]]; then
-          extension="rb"
-        else
-          extension="${filename##*.}"
-        fi
+        extension="${filename##*.}"
       fi
       ;;
   esac
 
   case "$extension" in
-    bash | bats | cjs | css | dash | graphql | \
+    bash | bats | cjs | css | graphql | \
       html | jade | js | json | jsx | ksh | md | mdx | \
       mksh | pug | pxd | pxi | py | pyi | pyx | scss | \
       ts | tsx | xml | yml)
@@ -461,7 +457,6 @@ normalize_extension() {
       # Inspect shebang to get actual shell interpreter
       case "$(get_shebang "path=${path}")" in
         *bash) echo "bash" ;;
-        *dash) echo "dash" ;;
         *mksh) echo "mksh" ;;
         *ksh) echo "ksh" ;;
         *) echo "sh" ;;
@@ -474,7 +469,6 @@ normalize_extension() {
         */bin/sh) echo "sh" ;;
         *bash) echo "bash" ;;
         *bats) echo "bats" ;;
-        *dash) echo "dash" ;;
         *ksh) echo "ksh" ;;
         *node* | *deno*) echo "js" ;;
         *python*) echo "py" ;;
