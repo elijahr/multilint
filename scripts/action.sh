@@ -74,14 +74,14 @@ else
       # A pull request.
       # Check files which have changed between the merge base and the
       # current commit.
-      git fetch --unshallow origin "${GITHUB_BASE_REF}"
+      git fetch --unshallow origin "${GITHUB_BASE_REF}" || git fetch --depth=1000 origin "${GITHUB_BASE_REF}"
       git show-ref
       IFS= read -r committish < <(git merge-base -a "refs/remotes/origin/${GITHUB_BASE_REF}" "${GITHUB_SHA}" || true)
     else
       # A push to a non-default, non-PR branch.
       # Check files which have changed between default branch and the current
       # commit.
-      git fetch  --unshallow origin "${default_branch}"
+      git fetch --unshallow origin "${default_branch}" || git fetch --depth=1000 origin "${default_branch}"
       git show-ref
       IFS= read -r committish < <(git merge-base -a "refs/remotes/origin/${default_branch}" "${GITHUB_SHA}" || true)
     fi
