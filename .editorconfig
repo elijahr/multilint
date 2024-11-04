@@ -20,13 +20,9 @@ shell_variant      = posix
 [*.py]
 indent_size = 4
 
-[tools/.bundle]
-ignore = true
 [tools/asdf]
 ignore = true
 [tools/bin]
 ignore = true
 [tools/node_modules]
-ignore = true
-[tools/uncrustify-*]
 ignore = true

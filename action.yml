@@ -21,7 +21,7 @@ inputs:
 runs:
   using: "composite"
   steps:
-    - run: ./action.sh
+    - run: ./scripts/action.sh
       shell: bash
       env:
         INPUT_CHECK_ALL_FILES: ${{ inputs.check-all-files }}

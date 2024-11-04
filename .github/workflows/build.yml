@@ -1,121 +1,46 @@
-# yamllint disable rule:line-length
-# yamllint disable rule:comments-indentation
+name: CI Workflow
 
-name: Test
 on:
   pull_request:
     branches: ["*"]
   push:
-    branches: ["devel"]
+    branches: ["*"]
     tags: ["*"]
 
 jobs:
   lint:
-    name: lint
+    name: Lint
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
-
-      - name: Install tools
-        shell: bash
-        run: ./bin/lintball install-tools
-
       - name: Run lintball
-        shell: bash
-        run: ./bin/lintball check
+        uses: ./
 
   test:
-    name: bats unit tests (${{ matrix.runs-on }})
-    strategy:
-      fail-fast: false
-      matrix:
-        runs-on:
-          - ubuntu-latest
-          - macos-latest
-
-    runs-on: ${{ matrix.runs-on }}
-
+    name: Test
+    runs-on: ubuntu-latest
     steps:
-      - name: Install macOS dependencies
-        if: ${{ runner.os == 'macOS' }}
-        run: brew install bash
-
       - name: Checkout code
         uses: actions/checkout@v3
-
-      - uses: actions/setup-node@v2
-        with:
-          node-version: "16.x"
-
-      - uses: dtolnay/rust-toolchain@nightly
-
-      - name: Install tools
-        shell: bash
-        run: |
-          set -euxo pipefail
-
-          cd tools
-          npm ci --verbose
-          # seems to be necessary for node >= 15
-          [ -n "$(which bats)" ] || npm link bats --verbose
-          cd ..
-
-          ./bin/lintball install-tools --all
-
       - name: Run tests
-        run: |
-          cd tools
-          npm run test
+        run: ./scripts/run-tests-external.sh
 
-  install-local:
-    name: test local installation
+  build-and-push-docker-images:
+    name: Build & Push Docker Images
     runs-on: ubuntu-latest
-
+    needs: [lint, test]
     steps:
-      - name: Install lintball
-        run: npm install "https://github.com/${GITHUB_REPOSITORY}.git#${GITHUB_SHA}"
-
-      - name: Install tools
-        run: npx lintball install-tools --all
-
-      - name: Run lintball
-        run: npx lintball --help
-
-  install-global:
-    name: test global installation
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Install lintball
-        run: sudo npm install -g "https://github.com/${GITHUB_REPOSITORY}.git#${GITHUB_SHA}"
-
-      - name: Install tools
-        run: sudo lintball install-tools --all
-
-      - name: Run lintball
-        run: lintball --help
-
-  build-docker:
-    name: "build & push docker"
-    runs-on: ubuntu-latest
-    needs: [lint, test, install-local, install-global]
-    steps:
-      - name: Checkout
+      - name: Checkout code
         uses: actions/checkout@v3
-
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v2
-
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
-
       - name: Login to Docker Hub
         uses: docker/login-action@v2
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
-
-      - name: "Build & push"
+      - name: Build & Push
         run: ./scripts/build-and-push-docker-images.bash

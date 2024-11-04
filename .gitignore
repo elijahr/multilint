@@ -3,9 +3,7 @@
 /test/target
 /test/fixture/target
 /tools/asdf
-/tools/.bundle
 /tools/node_modules
-/tools/uncrustify*
 /tools/bin
 /.tmp
 /test/.bats

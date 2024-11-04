@@ -4,7 +4,7 @@
   },
   "name": "lintball",
   "description": "A wrapper script around linters (static code analysis tools) and code formatters (prettier, black, etc).",
-  "version": "1.7.0",
+  "version": "2.0.0",
   "directories": {
     "lib": "lib",
     "test": "test",
@@ -15,11 +15,9 @@
     "url": "git+https://github.com/elijahr/lintball.git"
   },
   "keywords": [
-    "ruby",
     "lint",
     "python",
     "bash",
-    "nim",
     "prettier",
     "tidy",
     "bats",

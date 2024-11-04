@@ -7,14 +7,6 @@
     "*/test/fixture/*",
     "*/test/target/*",
     "*/test/fixture/target/*",
-    "*/tools/.bundle/*",
-    "*/tools/asdf/*",
-    "*/tools/uncrustify*",
-    "*/tools/Gemfile*"
-  ],
-  "use": {
-    "clippy": false,
-    "stylua": false,
-    "rubocop": false
-  }
+    "*/tools/asdf/*"
+  ]
 }

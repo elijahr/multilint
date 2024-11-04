@@ -8,35 +8,25 @@ export LINTBALLRC_VERSION
 declare -a LINTBALL_CHECK_ARGS_AUTOFLAKE=()
 declare -a LINTBALL_CHECK_ARGS_AUTOPEP8=()
 declare -a LINTBALL_CHECK_ARGS_BLACK=()
-declare -a LINTBALL_CHECK_ARGS_CLIPPY=()
 declare -a LINTBALL_CHECK_ARGS_DOCFORMATTER=()
 declare -a LINTBALL_CHECK_ARGS_ESLINT=()
 declare -a LINTBALL_CHECK_ARGS_ISORT=()
-declare -a LINTBALL_CHECK_ARGS_NIMPRETTY=()
 declare -a LINTBALL_CHECK_ARGS_PRETTIER=()
 declare -a LINTBALL_CHECK_ARGS_PYLINT=()
-declare -a LINTBALL_CHECK_ARGS_RUBOCOP=()
 declare -a LINTBALL_CHECK_ARGS_SHELLCHECK=()
 declare -a LINTBALL_CHECK_ARGS_SHFMT=()
-declare -a LINTBALL_CHECK_ARGS_STYLUA=()
-declare -a LINTBALL_CHECK_ARGS_UNCRUSTIFY=()
 declare -a LINTBALL_CHECK_ARGS_YAMLLINT=()
 
 declare -a LINTBALL_WRITE_ARGS_AUTOFLAKE=()
 declare -a LINTBALL_WRITE_ARGS_AUTOPEP8=()
 declare -a LINTBALL_WRITE_ARGS_BLACK=()
-declare -a LINTBALL_WRITE_ARGS_CLIPPY=()
 declare -a LINTBALL_WRITE_ARGS_DOCFORMATTER=()
 declare -a LINTBALL_WRITE_ARGS_ESLINT=()
 declare -a LINTBALL_WRITE_ARGS_ISORT=()
-declare -a LINTBALL_WRITE_ARGS_NIMPRETTY=()
 declare -a LINTBALL_WRITE_ARGS_PRETTIER=()
 declare -a LINTBALL_WRITE_ARGS_PYLINT=()
-declare -a LINTBALL_WRITE_ARGS_RUBOCOP=()
 declare -a LINTBALL_WRITE_ARGS_SHELLCHECK=()
 declare -a LINTBALL_WRITE_ARGS_SHFMT=()
-declare -a LINTBALL_WRITE_ARGS_STYLUA=()
-declare -a LINTBALL_WRITE_ARGS_UNCRUSTIFY=()
 declare -a LINTBALL_WRITE_ARGS_YAMLLINT=()
 
 declare -a LINTBALL_IGNORE_GLOBS=()
@@ -44,13 +34,13 @@ declare -a LINTBALL_FIND_ARGS=()
 
 # shellcheck disable=SC2034
 declare -a LINTBALL_HANDLED_EXTENSIONS=(
-  bash bats c cjs cpp cs css d dash graphql h hpp html jade java js json jsx ksh
-  lua m M md mdx mksh mm nim pug pxd pxi py pyi pyx rb rs scss sh toml ts tsx
+  bash bats cjs css graphql html jade js json jsx ksh
+  md mdx mksh pug pxd pxi py pyi pyx scss sh ts tsx
   xml yaml yml)
 
 declare -a LINTBALL_ALL_TOOLS=(
-  autoflake autopep8 black clippy docformatter eslint isort nimpretty
-  prettier pylint rubocop shellcheck shfmt stylua uncrustify yamllint)
+  autoflake autopep8 black docformatter eslint isort
+  prettier pylint shellcheck shfmt yamllint)
 
 # Used by some tools to determine whether to install binaries or compile source
 LIBC_TYPE="$(if command -v clang 2>&1 >/dev/null; then
@@ -81,19 +71,10 @@ ASDF_SHFMT_VERSION=3.8.0
 export ASDF_SHFMT_VERSION
 ASDF_SHELLCHECK_VERSION=0.10.0
 export ASDF_SHELLCHECK_VERSION
-ASDF_RUST_VERSION=1.77.1
-export ASDF_RUST_VERSION
 ASDF_PYTHON_VERSION=3.12.2
 export ASDF_PYTHON_VERSION
-ASDF_NIM_VERSION=ref:version-2-0
-export ASDF_NIM_VERSION
-ASDF_RUBY_VERSION=3.3.0
-export ASDF_RUBY_VERSION
 
 ## ASDF tool config
-# Allow rustup installation
-RUSTUP_INIT_SKIP_PATH_CHECK=yes
-export RUSTUP_INIT_SKIP_PATH_CHECK
 if [[ ${LIBC_TYPE} == "musl" ]]; then
   # binary nodejs doesn't run on alpine / musl
   # see https://github.com/asdf-vm/asdf-nodejs/issues/190

@@ -299,8 +299,6 @@ process_file() {
   status=0
   for tool in "$@"; do
     case "${tool}" in
-      clippy) run_tool_clippy "mode=${mode}" "path=${path}" || status=$? ;;
-      nimpretty) run_tool_nimpretty "mode=${mode}" "path=${path}" || status=$? ;;
       prettier) run_tool_prettier "mode=${mode}" "path=${path}" || status=$? ;;
       eslint) run_tool_eslint "mode=${mode}" "path=${path}" || status=$? ;;
       shellcheck)
@@ -310,10 +308,6 @@ process_file() {
       shfmt)
         IFS= read -r lang < <(get_lang_shfmt "extension=${extension}")
         run_tool_shfmt "mode=${mode}" "path=${path}" "lang=${lang}" || status=$?
-        ;;
-      uncrustify)
-        IFS= read -r lang < <(get_lang_uncrustify "extension=${extension}")
-        run_tool_uncrustify "mode=${mode}" "path=${path}" "lang=${lang}" || status=$?
         ;;
       *) run_tool "tool=${tool}" "mode=${mode}" "path=${path}" || status=$? ;;
     esac
@@ -591,32 +585,21 @@ Supported tools:
   | :----------- | ------------------------------------------------------: |
   | bash         |                                       shellcheck, shfmt |
   | bats         |                                       shellcheck, shfmt |
-  | C            |                                              uncrustify |
-  | C#           |                                              uncrustify |
-  | C++          |                                              uncrustify |
   | CSS          |                                                prettier |
   | Cython       |                       autoflake, autopep8, docformatter |
-  | D            |                                              uncrustify |
   | dash         |                                       shellcheck, shfmt |
   | GraphQL      |                                                prettier |
   | HTML         |                                                prettier |
-  | Java         |                                           prettier-java |
   | JavaScript   |                                        eslint, prettier |
   | JSON         |                                                prettier |
   | JSX          |                                        eslint, prettier |
   | ksh          |                                       shellcheck, shfmt |
-  | Lua          |                                                  StyLua |
-  | Luau         |                                                  StyLua |
   | Markdown     |                                                prettier |
   | MDX          |                                                prettier |
   | mksh         |                                       shellcheck, shfmt |
-  | Nim          |                                               nimpretty |
-  | Objective-C  |                                              uncrustify |
   | package.json |                                   prettier-package-json |
   | pug          |                                     prettier/plugin-pug |
   | Python       | autoflake, autopep8, black, docformatter, isort, pylint |
-  | Ruby         |                          @prettier/plugin-ruby, rubocop |
-  | Rust         |                                                  clippy |
   | SASS         |                                                prettier |
   | sh           |                                       shellcheck, shfmt |
   | TSX          |                                        eslint, prettier |
@@ -629,32 +612,21 @@ Detection methods:
   | :----------- | --------------------------------------------------: |
   | bash         |                         *.bash, #!/usr/bin/env bash |
   | bats         |                         *.bats, #!/usr/bin/env bats |
-  | C            |                                            *.c, *.h |
-  | C#           |                                                *.cs |
-  | C++          |                                        *.cpp, *.hpp |
   | CSS          |                                               *.css |
   | Cython       |                                 *.pyx, *.pxd, *.pxi |
-  | D            |                                                 *.d |
   | dash         |                         *.dash, #!/usr/bin/env dash |
   | GraphQL      |                                           *.graphql |
   | HTML         |                                              *.html |
-  | Java         |                                              *.java |
   | JavaScript   |                    *.js, *.cjs, #!/usr/bin/env node |
   | JSON         |                                              *.json |
   | JSX          |                                               *.jsx |
   | ksh          |                           *.ksh, #!/usr/bin/env ksh |
-  | Lua          |                                               *.lua |
-  | Luau         |                                              *.luau |
   | Markdown     |                                                *.md |
   | MDX          |                                               *.mdx |
   | mksh         |                         *.mksh, #!/usr/bin/env mksh |
-  | Nim          |                                               *.nim |
-  | Objective-C  |                                      *.m, *.mm, *.M |
   | package.json |                                        package.json |
   | pug          |                                               *.pug |
   | Python       |                  *.py, *.pyi, #!/usr/bin/env python |
-  | Ruby         |                  *.rb, Gemfile, #!/usr/bin/env ruby |
-  | Rust         |                                          Cargo.toml |
   | SASS         |                                              *.scss |
   | sh           |                                     *.sh, #!/bin/sh |
   | TSX          |                                               *.tsx |

@@ -190,21 +190,6 @@ EOF
   assert_equal "$(cat "a_py")" "${expected}"
 }
 
-@test 'lintball fix #!/usr/bin/env ruby' {
-  run lintball fix "a_rb" # 3>&-
-  assert_success
-  expected="$(
-    cat <<EOF
-#!/usr/bin/env ruby
-# frozen_string_literal: true
-d = [123, 456, 789]
-
-echo d
-EOF
-  )"
-  assert_equal "$(cat "a_rb")" "${expected}"
-}
-
 @test 'lintball fix *.bash' {
   run lintball fix "a.bash" # 3>&-
   assert_success
@@ -236,63 +221,6 @@ EOF
   assert_equal "$(cat "a.bats")" "$(cat "a.bats.expected")"
 }
 
-@test 'lintball fix *.c' {
-  run lintball fix "a.c" # 3>&-
-  assert_success
-  expected="$(
-    cat <<EOF
-#include <stdio.h>
-
-int main() {
-    printf("Hello World!");
-    return 0;
-}
-EOF
-  )"
-  assert_equal "$(cat "a.c")" "${expected}"
-}
-
-@test 'lintball fix *.cpp' {
-  run lintball fix "a.cpp" # 3>&-
-  assert_success
-  expected="$(
-    cat <<EOF
-#include <iostream>
-using namespace std;
-
-namespace HelloWorld {
-class Hello {
-    void func() {
-        cout << "Inside func" << endl;
-    }
-}
-}
-int main() {
-    std::cout << "Hello World!";
-    return 0;
-}
-EOF
-  )"
-  assert_equal "$(cat "a.cpp")" "${expected}"
-}
-
-@test 'lintball fix *.cs' {
-  run lintball fix "a.cs" # 3>&-
-  assert_success
-  expected="$(
-    cat <<EOF
-namespace HelloWorld {
-class Hello {
-    static void Main(string[] args) {
-        System.Console.WriteLine("Hello World!");
-    }
-}
-}
-EOF
-  )"
-  assert_equal "$(cat "a.cs")" "${expected}"
-}
-
 @test 'lintball fix *.css' {
   run lintball fix "a.css" # 3>&-
   assert_success
@@ -304,22 +232,6 @@ html body h1 {
 EOF
   )"
   assert_equal "$(cat "a.css")" "${expected}"
-}
-
-@test 'lintball fix *.d' {
-  run lintball fix "a.d" # 3>&-
-  assert_success
-  expected="$(
-    cat <<EOF
-
-import std.stdio;
-
-void main() {
-    writeln("Hello, World!");
-}
-EOF
-  )"
-  assert_equal "$(cat "a.d")" "${expected}"
 }
 
 @test 'lintball fix *.dash' {
@@ -341,32 +253,6 @@ EOF
   assert_equal "$(cat "a.dash")" "${expected}"
 }
 
-@test 'lintball fix *.h' {
-  run lintball fix "a.h" # 3>&-
-  assert_success
-  expected="$(
-    cat <<EOF
-#include <stdio.h>
-
-int main();
-EOF
-  )"
-  assert_equal "$(cat "a.h")" "${expected}"
-}
-
-@test 'lintball fix *.hpp' {
-  run lintball fix "a.hpp" # 3>&-
-  assert_success
-  expected="$(
-    cat <<EOF
-#include <iostream>
-
-int main();
-EOF
-  )"
-  assert_equal "$(cat "a.hpp")" "${expected}"
-}
-
 @test 'lintball fix *.html' {
   run lintball fix "a.html" # 3>&-
   assert_success
@@ -384,22 +270,6 @@ EOF
 EOF
   )"
   assert_equal "$(cat "a.html")" "${expected}"
-}
-
-@test 'lintball fix *.java' {
-  run lintball fix "a.java" # 3>&-
-  assert_success
-  expected="$(
-    cat <<EOF
-class HelloWorld {
-
-  public static void main(String[] args) {
-    System.out.println("Hello, World!");
-  }
-}
-EOF
-  )"
-  assert_equal "$(cat "a.java")" "${expected}"
 }
 
 @test 'lintball fix *.js' {
@@ -476,40 +346,6 @@ EOF
   assert_equal "$(cat "a.ksh")" "${expected}"
 }
 
-@test 'lintball fix *.lua' {
-  run lintball fix "a.lua" # 3>&-
-  assert_success
-  expected="$(
-    cat <<EOF
-type A = { b: number, c: number }
-
-local a: A = { b = 1, c = 2 }
-
-print(a.b, a.c)
-EOF
-  )"
-  assert_equal "$(cat "a.lua")" "${expected}"
-}
-
-@test 'lintball fix *.m' {
-  run lintball fix "a.m" # 3>&-
-  assert_success
-  expected="$(
-    cat <<EOF
-#import <Foundation/Foundation.h>
-
-int main(int argc, const char *argv[]) {
-    NSAutoreleasePool *pool = [[NSAutoreleasePool alloc]init];
-
-    NSLog(@"Hello, World!");
-    [pool drain];
-    return 0;
-}
-EOF
-  )"
-  assert_equal "$(cat "a.m")" "${expected}"
-}
-
 @test 'lintball fix *.md' {
   run lintball fix "a.md" # 3>&-
   assert_success
@@ -572,29 +408,6 @@ done
 EOF
   )"
   assert_equal "$(cat "a.mksh")" "${expected}"
-}
-
-@test 'lintball fix *.nim' {
-  run lintball fix "a.nim" # 3>&-
-  assert_success
-  expected="$(
-    cat <<EOF
-type
-  A* = int
-  B* = int
-
-proc my_foo(a: string, b: string, c: int, ): string =
-  raise newException (Exception,
-    "foo")
-  foo (a, b, c)
-  d [a] = 3
-  discard "string to discard"
-
-  break
-  return "string to return"
-EOF
-  )"
-  assert_equal "$(cat "a.nim")" "${expected}"
 }
 
 @test 'lintball fix *.pug' {
@@ -674,20 +487,6 @@ cdef void fun(char * a) nogil:
 EOF
   )"
   assert_equal "$(cat "b.pyx")" "${expected}"
-}
-
-@test 'lintball fix *.rb' {
-  run lintball fix "a.rb" # 3>&-
-  assert_success
-  expected="$(
-    cat <<EOF
-# frozen_string_literal: true
-d = [123, 456, 789]
-
-echo d
-EOF
-  )"
-  assert_equal "$(cat "a.rb")" "${expected}"
 }
 
 @test 'lintball fix *.scss' {
@@ -793,35 +592,6 @@ hello: world
 EOF
   )"
   assert_equal "$(cat "a.yml")" "${expected}"
-}
-
-@test 'lintball fix Cargo.toml' {
-  run lintball fix "Cargo.toml" # 3>&-
-  expected="$(
-    cat <<EOF
-
-#![allow(clippy::stable_sort_primitive)]
-
-
-fn unnecessary_sort_by() {
-    fn id(x: isize) -> isize {
-        x
-    }
-    let mut vec: Vec<isize> = vec![3, 6, 1, 2, 5];
-    // Forward examples
-    vec.sort();
-    vec.sort_unstable();
-    vec.sort_by_key(|a| (a + 5).abs());
-    vec.sort_unstable_by_key(|a| id(-a));
-}
-
-fn main() {
-    unnecessary_sort_by();
-}
-EOF
-  )"
-  assert_success
-  assert_equal "$(cat "src/main.rs")" "${expected}"
 }
 
 @test 'lintball fix handles implicit path' {

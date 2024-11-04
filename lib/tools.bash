@@ -63,119 +63,8 @@ run_tool() {
   return "${status}"
 }
 
-run_tool_clippy() {
-  local mode path tool offset status cmd old dir stdout stderr
-  mode="${1#mode=}"
-  path="${2#path=}"
-
-  tool="clippy"
-  offset="${#tool}"
-  if [[ ${LINTBALL_USE_CLIPPY} == "false" ]]; then
-    # printf " ↳ %s%s%s\n" "${tool}" "${DOTS:offset}" "off"
-    return 0
-  fi
-
-  status=0
-  IFS= read -r stdout < <(mktemp)
-  IFS= read -r stderr < <(mktemp)
-
-  readarray -t cmd < <(cmd_clippy "mode=${mode}")
-
-  # path is always to a Cargo.toml file,
-  # so cd to containing directory to run clippy
-  old="${PWD}"
-  IFS= read -r dir < <(dirname "${path}")
-  status=0
-  cd "${dir}" || return $?
-
-  # shellcheck disable=SC2068
-  "${cmd[@]}" 1>"${stdout}" 2>"${stderr}" || status=$?
-
-  if [[ ${status} -gt 0 ]]; then
-    # Some error message or diff
-    printf " ↳ %s%s%s\n" "${tool}" "${DOTS:offset}" "❌"
-    cat "${stdout}" 2>/dev/null
-    cat "${stderr}" 1>&2
-    status=1
-  elif [[ "$(cat "$stdout")" =~ (^\s+Fixed) ]]; then
-    printf " ↳ %s%s%s\n" "${tool}" "${DOTS:offset}" "wrote"
-  else
-    printf " ↳ %s%s%s\n" "${tool}" "${DOTS:offset}" "ok"
-  fi
-  rm "${stdout}"
-  rm "${stderr}"
-  cd "${old}" || return $?
-  return "${status}"
-}
-
-run_tool_nimpretty() {
-  local mode path tool offset use args cmd tmp patch stdout stderr status
-  mode="${1#mode=}"
-  path="${2#path=}"
-
-  tool="nimpretty"
-  offset="${#tool}"
-
-  if [[ ${LINTBALL_USE_NIMPRETTY} == "false" ]]; then
-    # printf " ↳ %s%s%s\n" "${tool}" "${DOTS:offset}" "off"
-    return 0
-  fi
-
-  declare -a args=()
-  if [[ ${mode} == "write" ]]; then
-    args+=("${LINTBALL_WRITE_ARGS_NIMPRETTY[@]}")
-  else
-    args+=("${LINTBALL_CHECK_ARGS_NIMPRETTY[@]}")
-  fi
-
-  IFS= read -r tmp < <(mktemp)
-  IFS= read -r stdout < <(mktemp)
-  IFS= read -r stderr < <(mktemp)
-  status=0
-
-  readarray -t cmd < <(interpolate \
-    "tool" "nimpretty" \
-    "lintball_dir" "${LINTBALL_DIR}" \
-    "tmp" "${tmp}" \
-    "path" "${path}" \
-    -- "${args[@]}")
-
-  # shellcheck disable=SC2068
-  "${cmd[@]}" 1>"${stdout}" 2>"${stderr}" || status=$?
-
-  if [[ ${status} -eq 0 ]]; then
-    if [[ "$(cat "${tmp}")" == "$(cat "${path}")" ]]; then
-      printf " ↳ %s%s%s\n" "${tool}" "${DOTS:offset}" "ok"
-    else
-      patch=$(diff -u "${path}" "${tmp}")
-      if [[ -n ${patch} ]]; then
-        if [[ ${mode} == "write" ]]; then
-          cat "${tmp}" >"${path}"
-          printf " ↳ %s%s%s\n" "${tool}" "${DOTS:offset}" "wrote"
-        else
-          printf " ↳ %s%s%s\n" "${tool}" "${DOTS:offset}" "❌"
-          echo "${patch}"
-          status=1
-        fi
-      else
-        printf " ↳ %s%s%s\n" "${tool}" "${DOTS:offset}" "❌"
-        cat "${stdout}" 2>/dev/null
-        cat "${stderr}" 1>&2
-      fi
-    fi
-  else
-    printf " ↳ %s%s%s\n" "${tool}" "${DOTS:offset}" "❌"
-    cat "${stdout}" 2>/dev/null
-    cat "${stderr}" 1>&2
-  fi
-  rm "${tmp}"
-  rm "${stdout}"
-  rm "${stderr}"
-  return "${status}"
-}
-
 run_tool_prettier() {
-  local mode path tool offset cmd stdout stderr status args patch original
+  local mode path tool offset cmd stdout stderr status args original
   mode="${1#mode=}"
   path="${2#path=}"
 
@@ -422,9 +311,9 @@ run_tool_shellcheck() {
       "${cmd[@]}" 1>"${patchfile}" 2>"${patcherr}" || true
 
       if [[ -n "$(cat "${patchfile}")" ]]; then
-        # Fix patchfile
-        sed -i '' 's/^--- a\/\.\//--- a\//' "${patchfile}"
-        sed -i '' 's/^+++ b\/\.\//+++ b\//' "${patchfile}"
+        # Fix patchfile - note this breaks on macos
+        sed -i 's/^--- a\/\.\//--- a\//' "${patchfile}"
+        sed -i 's/^+++ b\/\.\//+++ b\//' "${patchfile}"
         git apply "${patchfile}" 1>/dev/null
         printf " ↳ %s%s%s\n" "${tool}" "${DOTS:offset}" "wrote"
         status=0
@@ -448,69 +337,5 @@ run_tool_shellcheck() {
   rm "${stderr}"
   rm "${patchfile}"
   rm "${patcherr}"
-  return "${status}"
-}
-
-run_tool_uncrustify() {
-  local mode path lang tool offset args cmd patch stdout stderr status
-  mode="${1#mode=}"
-  path="${2#path=}"
-  lang="${3#lang=}"
-
-  tool="uncrustify"
-  offset="${#tool}"
-
-  if [[ ${LINTBALL_USE_UNCRUSTIFY} == "false" ]]; then
-    # printf " ↳ %s%s%s\n" "${tool}" "${DOTS:offset}" "off"
-    return 0
-  fi
-
-  declare -a args=()
-  if [[ ${mode} == "write" ]]; then
-    args+=("${LINTBALL_WRITE_ARGS_UNCRUSTIFY[@]}")
-  else
-    args+=("${LINTBALL_CHECK_ARGS_UNCRUSTIFY[@]}")
-  fi
-
-  IFS= read -r stdout < <(mktemp)
-  IFS= read -r stderr < <(mktemp)
-  status=0
-
-  readarray -t cmd < <(interpolate \
-    "tool" "${LINTBALL_DIR}/tools/bin/uncrustify" \
-    "lintball_dir" "${LINTBALL_DIR}" \
-    "lang" "${lang}" \
-    "path" "${path}" \
-    -- "${args[@]}")
-
-  # shellcheck disable=SC2068
-  "${cmd[@]}" 1>"${stdout}" 2>"${stderr}" || status=$?
-
-  if [[ ${status} -eq 0 ]]; then
-    if [[ "$(cat "${stdout}")" == "$(cat "${path}")" ]]; then
-      printf " ↳ %s%s%s\n" "${tool}" "${DOTS:offset}" "ok"
-    else
-      patch=$(diff -u "${path}" "${stdout}")
-      if [[ -n ${patch} ]]; then
-        if [[ ${mode} == "write" ]]; then
-          cat "${stdout}" >"${path}"
-          printf " ↳ %s%s%s\n" "${tool}" "${DOTS:offset}" "wrote"
-        else
-          printf " ↳ %s%s%s\n" "${tool}" "${DOTS:offset}" "❌"
-          echo "${patch}"
-          status=1
-        fi
-      else
-        printf " ↳ %s%s%s\n" "${tool}" "${DOTS:offset}" "❌"
-        cat "${stdout}" 2>/dev/null
-        cat "${stderr}" 1>&2
-      fi
-    fi
-  else
-    printf " ↳ %s%s%s\n" "${tool}" "${DOTS:offset}" "❌"
-    cat "${stderr}" 1>&2
-  fi
-  rm "${stdout}"
-  rm "${stderr}"
   return "${status}"
 }

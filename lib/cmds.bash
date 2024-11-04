@@ -49,22 +49,6 @@ cmd_black() {
     -- "${args[@]}"
 }
 
-cmd_clippy() {
-  local mode args
-  mode="${1#mode=}"
-
-  declare -a args=()
-  if [[ ${mode} == "write" ]]; then
-    args+=("${LINTBALL_WRITE_ARGS_CLIPPY[@]}")
-  else
-    args+=("${LINTBALL_CHECK_ARGS_CLIPPY[@]}")
-  fi
-  interpolate \
-    "tool" "clippy" \
-    "lintball_dir" "${LINTBALL_DIR}" \
-    -- "${args[@]}"
-}
-
 cmd_docformatter() {
   local mode path args
   mode="${1#mode=}"
@@ -160,30 +144,6 @@ cmd_pylint() {
     -- "${args[@]}"
 }
 
-cmd_rubocop() {
-  local mode path color args
-  mode="${1#mode=}"
-  path="${2#path=}"
-
-  # show colors in output only if interactive shell
-  color="--no-color"
-  if [[ $- == *i* ]]; then
-    color="--color"
-  fi
-
-  declare -a args=()
-  if [[ ${mode} == "write" ]]; then
-    args+=("${LINTBALL_WRITE_ARGS_RUBOCOP[@]}")
-  else
-    args+=("${LINTBALL_CHECK_ARGS_RUBOCOP[@]}")
-  fi
-  interpolate \
-    "lintball_dir" "${LINTBALL_DIR}" \
-    "color" "${color}" \
-    "path" "${path}" \
-    -- "${args[@]}"
-}
-
 cmd_shfmt() {
   local mode path lang args
   mode="${1#mode=}"
@@ -200,24 +160,6 @@ cmd_shfmt() {
     "tool" "shfmt" \
     "lintball_dir" "${LINTBALL_DIR}" \
     "lang" "${lang}" \
-    "path" "${path}" \
-    -- "${args[@]}"
-}
-
-cmd_stylua() {
-  local mode path args
-  mode="${1#mode=}"
-  path="${2#path=}"
-
-  declare -a args=()
-  if [[ ${mode} == "write" ]]; then
-    args+=("${LINTBALL_WRITE_ARGS_STYLUA[@]}")
-  else
-    args+=("${LINTBALL_CHECK_ARGS_STYLUA[@]}")
-  fi
-  interpolate \
-    "tool" "stylua" \
-    "lintball_dir" "${LINTBALL_DIR}" \
     "path" "${path}" \
     -- "${args[@]}"
 }

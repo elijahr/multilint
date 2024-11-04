@@ -25,16 +25,6 @@
       "--check",
       "{{path}}"
     ],
-    "clippy": [
-      "rustup",
-      "run",
-      "nightly",
-      "cargo",
-      "{{tool}}",
-      "--",
-      "-D",
-      "clippy::all"
-    ],
     "docformatter": ["{{tool}}", "--check", "{{path}}"],
     "eslint": [
       "npm",
@@ -58,7 +48,6 @@
       "--check-only",
       "{{path}}"
     ],
-    "nimpretty": ["{{tool}}", "--out:{{tmp}}", "{{path}}"],
     "prettier": [
       "npm",
       "--prefix={{lintball_dir}}/tools",
@@ -75,15 +64,6 @@
       "-f",
       "{{format}}",
       "--rcfile={{lintball_dir}}/configs/pyproject.toml",
-      "{{path}}"
-    ],
-    "rubocop": [
-      "bundle",
-      "exec",
-      "rubocop",
-      "{{color}}",
-      "--config",
-      "{{lintball_dir}}/configs/rubocop.yml",
       "{{path}}"
     ],
     "shellcheck": [
@@ -105,14 +85,6 @@
       "-ci",
       "-ln",
       "{{lang}}",
-      "{{path}}"
-    ],
-    "stylua": ["{{tool}}", "--check", "{{path}}"],
-    "uncrustify": [
-      "{{tool}}",
-      "-c",
-      "{{lintball_dir}}/configs/uncrustify.{{lang}}.cfg",
-      "-f",
       "{{path}}"
     ],
     "yamllint": [
@@ -149,19 +121,6 @@
       "{{lintball_dir}}/configs/pyproject.toml",
       "{{path}}"
     ],
-    "clippy": [
-      "rustup",
-      "run",
-      "nightly",
-      "cargo",
-      "{{tool}}",
-      "--allow-dirty",
-      "--allow-staged",
-      "--fix",
-      "--",
-      "-D",
-      "clippy::all"
-    ],
     "docformatter": ["{{tool}}", "--in-place", "{{path}}"],
     "eslint": [
       "npm",
@@ -187,7 +146,6 @@
       "{{lintball_dir}}/configs/pyproject.toml",
       "{{path}}"
     ],
-    "nimpretty": ["{{tool}}", "--out:{{tmp}}", "{{path}}"],
     "prettier": [
       "npm",
       "--prefix={{lintball_dir}}/tools",
@@ -205,16 +163,6 @@
       "-f",
       "{{format}}",
       "--rcfile={{lintball_dir}}/configs/pyproject.toml",
-      "{{path}}"
-    ],
-    "rubocop": [
-      "bundle",
-      "exec",
-      "rubocop",
-      "{{color}}",
-      "--config",
-      "{{lintball_dir}}/configs/rubocop.yml",
-      "--auto-correct-all",
       "{{path}}"
     ],
     "shellcheck": [
@@ -239,14 +187,6 @@
       "-w",
       "{{path}}"
     ],
-    "stylua": ["{{tool}}", "{{path}}"],
-    "uncrustify": [
-      "{{tool}}",
-      "-c",
-      "{{lintball_dir}}/configs/uncrustify.{{lang}}.cfg",
-      "-f",
-      "{{path}}"
-    ],
     "yamllint": [
       "{{tool}}",
       "--format",
@@ -261,18 +201,13 @@
     "autoflake": true,
     "autopep8": true,
     "black": true,
-    "clippy": true,
     "docformatter": true,
     "isort": true,
-    "nimpretty": true,
     "prettier": true,
     "eslint": true,
     "pylint": true,
-    "rubocop": true,
     "shellcheck": true,
     "shfmt": true,
-    "stylua": true,
-    "uncrustify": true,
     "yamllint": true
   },
   "num_jobs": "auto"

@@ -1,37 +1,15 @@
 #!/usr/bin/env bash
 
-set -euo pipefail
+# Run lintball using Docker on git commit
 
-# Ensure ARM64 homebrew and /usr/local/bin are in PATH before system PATH.
-# This finds /usr/local/bin/lintball and finds newer Homebrew-installed bash.
-PATH="/opt/homebrew/bin:/usr/local/bin:${PATH}"
-export PATH
+set -eu
 
-if [[ -z ${LINTBALL_DIR:-} ]]; then
-  if [[ -f "${PWD}/bin/lintball" ]]; then
-    # lintball itself
-    LINTBALL_DIR="${PWD}"
-    export LINTBALL_DIR
-  elif [[ -f "${PWD}/node_modules/lintball/bin/lintball" ]]; then
-    # lintball installed via npm locally
-    LINTBALL_DIR="${PWD}/node_modules/lintball"
-    export LINTBALL_DIR
-  fi
-fi
+LINTBALL_DIR=$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)
 
-if [[ -n ${LINTBALL_DIR:-} ]]; then
-  "${LINTBALL_DIR}/bin/lintball" pre-commit
-elif command -v lintball; then
-  lintball pre-commit
+if [[ ! -f "${LINTBALL_DIR}/lintballrc-defaults.json" ]]; then
+  # This is lintball itself
+  "${LINTBALL_DIR}"/scripts/build-local-docker-image.sh
+  docker run --rm -v "${PWD}:/workspace" lintball:local lintball pre-commit
 else
-  {
-    echo
-    echo "Error: could not find a lintball executable, but lintball's pre-commit hook is enabled."
-    echo
-    echo "Install lintball with:"
-    echo
-    echo '  npm install lintball'
-    echo
-  } >&2
-  exit 1
+  docker run --rm -v "${PWD}:/workspace" elijahru/lintball:latest lintball pre-commit
 fi

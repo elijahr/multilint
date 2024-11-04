@@ -105,14 +105,6 @@ teardown() {
   assert_success
 }
 
-@test 'lintball check #!/usr/bin/env ruby' {
-  run lintball check "a_rb" # 3>&-
-  assert_failure
-  run lintball fix "a_rb"   # 3>&-
-  run lintball check "a_rb" # 3>&-
-  assert_success
-}
-
 @test 'lintball check *.bash' {
   run lintball check "a.bash" # 3>&-
   assert_failure
@@ -129,43 +121,11 @@ teardown() {
   assert_success
 }
 
-@test 'lintball check *.c' {
-  run lintball check "a.c" # 3>&-
-  assert_failure
-  run lintball fix "a.c"   # 3>&-
-  run lintball check "a.c" # 3>&-
-  assert_success
-}
-
-@test 'lintball check *.cpp' {
-  run lintball check "a.cpp" # 3>&-
-  assert_failure
-  run lintball fix "a.cpp"   # 3>&-
-  run lintball check "a.cpp" # 3>&-
-  assert_success
-}
-
-@test 'lintball check *.cs' {
-  run lintball check "a.cs" # 3>&-
-  assert_failure
-  run lintball fix "a.cs"   # 3>&-
-  run lintball check "a.cs" # 3>&-
-  assert_success
-}
-
 @test 'lintball check *.css' {
   run lintball check "a.css" # 3>&-
   assert_failure
   run lintball fix "a.css"   # 3>&-
   run lintball check "a.css" # 3>&-
-  assert_success
-}
-
-@test 'lintball check *.d' {
-  run lintball check "a.d" # 3>&-
-  assert_failure
-  run lintball fix "a.d"   # 3>&-
-  run lintball check "a.d" # 3>&-
   assert_success
 }
 
@@ -177,35 +137,11 @@ teardown() {
   assert_success
 }
 
-@test 'lintball check *.h' {
-  run lintball check "a.h" # 3>&-
-  assert_failure
-  run lintball fix "a.h"   # 3>&-
-  run lintball check "a.h" # 3>&-
-  assert_success
-}
-
-@test 'lintball check *.hpp' {
-  run lintball check "a.hpp" # 3>&-
-  assert_failure
-  run lintball fix "a.hpp"   # 3>&-
-  run lintball check "a.hpp" # 3>&-
-  assert_success
-}
-
 @test 'lintball check *.html' {
   run lintball check "a.html" # 3>&-
   assert_failure
   run lintball fix "a.html"   # 3>&-
   run lintball check "a.html" # 3>&-
-  assert_success
-}
-
-@test 'lintball check *.java' {
-  run lintball check "a.java" # 3>&-
-  assert_failure
-  run lintball fix "a.java"   # 3>&-
-  run lintball check "a.java" # 3>&-
   assert_success
 }
 
@@ -241,22 +177,6 @@ teardown() {
   assert_success
 }
 
-@test 'lintball check *.lua' {
-  run lintball check "a.lua" # 3>&-
-  assert_failure
-  run lintball fix "a.lua"   # 3>&-
-  run lintball check "a.lua" # 3>&-
-  assert_success
-}
-
-@test 'lintball check *.m' {
-  run lintball check "a.m" # 3>&-
-  assert_failure
-  run lintball fix "a.m"   # 3>&-
-  run lintball check "a.m" # 3>&-
-  assert_success
-}
-
 @test 'lintball check *.md' {
   run lintball check "a.md" # 3>&-
   assert_failure
@@ -278,14 +198,6 @@ teardown() {
   assert_failure
   run lintball fix "a.mksh"   # 3>&-
   run lintball check "a.mksh" # 3>&-
-  assert_success
-}
-
-@test 'lintball check *.nim' {
-  run lintball check "a.nim" # 3>&-
-  assert_failure
-  run lintball fix "a.nim"   # 3>&-
-  run lintball check "a.nim" # 3>&-
   assert_success
 }
 
@@ -318,14 +230,6 @@ teardown() {
   assert_failure
   run lintball fix "b.pyx"   # 3>&-
   run lintball check "b.pyx" # 3>&-
-  assert_success
-}
-
-@test 'lintball check *.rb' {
-  run lintball check "a.rb" # 3>&-
-  assert_failure
-  run lintball fix "a.rb"   # 3>&-
-  run lintball check "a.rb" # 3>&-
   assert_success
 }
 
@@ -374,14 +278,6 @@ teardown() {
   assert_failure
   run lintball fix "a.yml"   # 3>&-
   run lintball check "a.yml" # 3>&-
-  assert_success
-}
-
-@test 'lintball check Cargo.toml' {
-  run lintball check "Cargo.toml" # 3>&-
-  assert_failure
-  run lintball fix "Cargo.toml"   # 3>&-
-  run lintball check "Cargo.toml" # 3>&-
   assert_success
 }
 

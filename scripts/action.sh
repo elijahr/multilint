@@ -11,20 +11,7 @@ IFS= read -r committish < <(printenv 'INPUT_COMMITTISH')
 IFS= read -r default_branch < <(printenv 'INPUT_DEFAULT_BRANCH')
 IFS= read -r workspace < <(printenv 'INPUT_WORKSPACE')
 
-if [[ -n $(command -v jq) ]]; then
-  IFS= read -r lintball_version < <(jq -r .version "${GITHUB_ACTION_PATH}/package.json")
-elif [[ -n $(command -v npm) ]]; then
-  # shellcheck disable=SC2016
-  lintball_version=$(
-    cd "${GITHUB_ACTION_PATH}"
-    npm -s run env echo '$npm_package_version'
-  )
-else
-  echo >&2
-  echo "Could not find jq or npm. Please install one of them." >&2
-  exit 1
-fi
-IFS= read -r lintball_major_version < <(echo "${lintball_version}" | awk -F '.' '{print $1}')
+LINTBALL_DIR=$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)
 
 case "${check_all_files}" in
   true | false) ;;
@@ -97,7 +84,7 @@ else
     echo >&2
     echo "Committish may be set manually." >&2
     echo "For instance, if you want to check files changed in the most recent commit:" >&2
-    echo "  uses: elijahr/lintball@v${lintball_major_version}" >&2
+    echo "  uses: elijahr/lintball" >&2
     echo "  with:" >&2
     echo "    committish: HEAD~1" >&2
     echo >&2
@@ -106,12 +93,11 @@ else
   lintball_check_args+=("--since" "${committish}")
 fi
 
-LINTBALL_DOCKERHUB_IMAGE_TAG="${lintball_version}"
-export LINTBALL_DOCKERHUB_IMAGE_TAG
-LINTBALL_WORKSPACE="${workspace}"
-export LINTBALL_WORKSPACE
+"${LINTBALL_DIR}/scripts/build-local-docker-image.sh"
 
-if ! docker-compose run -f "${GITHUB_ACTION_PATH}/docker-compose.yml" lintball \
+if ! docker run \
+  --mount type=bind,source="${workspace}",target=/workspace,readonly \
+  lintball:local \
   lintball check "${lintball_check_args[@]}"; then
   status=$?
   echo >&2

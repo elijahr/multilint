@@ -260,13 +260,8 @@ get_installer_for_tool() {
     autoflake | autopep8 | black | docformatter | isort | yamllint)
       echo "install_python"
       ;;
-    nimpretty) echo "install_nimpretty" ;;
     prettier | eslint) echo "install_nodejs" ;;
-    rubocop) echo "install_ruby" ;;
-    shellcheck) echo "install_shellcheck" ;;
     shfmt) echo "install_shfmt" ;;
-    stylua) echo "install_stylua" ;;
-    uncrustify) echo "install_uncrustify" ;;
     *) echo "" ;;
   esac
 }
@@ -287,16 +282,6 @@ get_lang_shfmt() {
     ksh) echo "mksh" ;;
     sh | dash) echo "posix" ;;
     *) echo "$extension" ;;
-  esac
-}
-
-get_lang_uncrustify() {
-  local extension
-  extension="${1#extension=}"
-  case "$extension" in
-    c | h) echo "c" ;;
-    cs | cpp | d | hpp) echo "cpp" ;;
-    m | mm | M) echo "objc" ;;
   esac
 }
 
@@ -325,7 +310,7 @@ get_tools_for_file() {
   IFS= read -r extension < <(normalize_extension "path=${path}")
 
   case "$extension" in
-    css | graphql | html | jade | java | json | md | mdx | pug | scss | xml)
+    css | graphql | html | jade | json | md | mdx | pug | scss | xml)
       if [[ $LINTBALL_USE_PRETTIER != "false" ]]; then
         echo "prettier"
       fi
@@ -338,27 +323,12 @@ get_tools_for_file() {
         echo "shellcheck"
       fi
       ;;
-    c | cpp | cs | d | h | hpp | m | mm | M)
-      if [[ $LINTBALL_USE_UNCRUSTIFY != "false" ]]; then
-        echo "uncrustify"
-      fi
-      ;;
     cjs | js | jsx | ts | tsx)
       if [[ $LINTBALL_USE_PRETTIER != "false" ]]; then
         echo "prettier"
       fi
       if [[ $LINTBALL_USE_ESLINT != "false" ]]; then
         echo "eslint"
-      fi
-      ;;
-    lua)
-      if [[ $LINTBALL_USE_STYLUA != "false" ]]; then
-        echo "stylua"
-      fi
-      ;;
-    nim)
-      if [[ $LINTBALL_USE_NIMPRETTY != "false" ]]; then
-        echo "nimpretty"
       fi
       ;;
     py)
@@ -404,28 +374,6 @@ get_tools_for_file() {
       fi
       if [[ $LINTBALL_USE_AUTOFLAKE != "false" ]]; then
         echo "autoflake"
-      fi
-      ;;
-    rb)
-      if [[ $LINTBALL_USE_PRETTIER != "false" ]]; then
-        echo "prettier"
-      fi
-      if [[ $LINTBALL_USE_RUBOCOP != "false" ]]; then
-        echo "rubocop"
-      fi
-      ;;
-    rs)
-      if [[ $LINTBALL_USE_CLIPPY != "false" ]]; then
-        echo "clippy"
-      fi
-      ;;
-    toml)
-      if [[ $LINTBALL_USE_CLIPPY != "false" ]]; then
-        if [[ "$(basename "${path}")" == "Cargo.toml" ]]; then
-          # Special case for Rust package; clippy analyzes an entire crate, not a
-          # single path, so when a Cargo.toml is encountered, use clippy.
-          echo "clippy"
-        fi
       fi
       ;;
     yml)
@@ -486,7 +434,6 @@ normalize_extension() {
     javascript) extension="js" ;;
     markdown) extension="md" ;;
     python) extension="py" ;;
-    ruby) extension="rb" ;;
     typescript) extension="ts" ;;
     yaml) extension="yml" ;;
     *)
@@ -504,10 +451,10 @@ normalize_extension() {
   esac
 
   case "$extension" in
-    bash | bats | c | cjs | cpp | cs | css | d | dash | graphql | h | hpp | \
-      html | jade | java | js | json | jsx | ksh | lua | m | M | md | mdx | \
-      mksh | mm | nim | pug | pxd | pxi | py | pyi | pyx | rb | rs | scss | \
-      toml | ts | tsx | xml | yml)
+    bash | bats | cjs | css | dash | graphql | \
+      html | jade | js | json | jsx | ksh | md | mdx | \
+      mksh | pug | pxd | pxi | py | pyi | pyx | scss | \
+      ts | tsx | xml | yml)
       echo "$extension"
       ;;
     sh)
@@ -531,7 +478,6 @@ normalize_extension() {
         *ksh) echo "ksh" ;;
         *node* | *deno*) echo "js" ;;
         *python*) echo "py" ;;
-        *ruby*) echo "rb" ;;
       esac
       ;;
   esac
