@@ -72,6 +72,9 @@ cli_entrypoint() {
   declare -a paths=()
 
   num_jobs="${LINTBALL_NUM_JOBS}"
+  echo "zzzzzz"
+  find .
+
   # Parse subcommand
   case "${1:-}" in
     check | fix)
