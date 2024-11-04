@@ -11,6 +11,11 @@ if [[ -f "${parent_dir}/configs/lintballrc-defaults.json" ]]; then
   "${parent_dir}"/scripts/build-local-docker-image.sh
   docker run --rm -v "${parent_dir}:/workspace" lintball:local lintball pre-commit
 else
-  workspace=$(cd "${GIT_DIR}"/.. && pwd)
+  if [[ -z ${GIT_DIR:-} ]]; then
+    echo "Error: Not a git repository."
+    exit 1
+  fi
+
+  workspace=$(git rev-parse --show-toplevel)
   docker run --rm -v "${workspace}:/workspace" elijahru/lintball:latest lintball pre-commit
 fi
