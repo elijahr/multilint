@@ -103,11 +103,28 @@ fi
 
 "${LINTBALL_DIR}/scripts/build-local-docker-image.sh"
 
-if ! docker run \
+echo xxx
+env
+echo yyy
+find "${workspace}"
+echo zzz
+docker run \
   --mount type=bind,source="${workspace}",target=/workspace,readonly \
+  lintball:local /bin/sh -c 'find /workspace'
+echo aaa
+docker run \
+  --mount type=bind,source="${workspace}",target=/workspace,readonly \
+  --mount type=bind,source="${workspace}/.git",target=/workspace/.git,readonly \
+  lintball:local /bin/sh -c 'find /workspace'
+
+status=0
+docker run \
+  --mount type=bind,source="${workspace}",target=/workspace,readonly \
+  --mount type=bind,source="${workspace}/.git",target=/workspace/.git,readonly \
   lintball:local \
-  lintball check "${lintball_check_args[@]}"; then
-  status=$?
+  lintball check "${lintball_check_args[@]}" || status=$?
+
+if [[ $status -ne 0 ]]; then
   echo >&2
   echo "The above issues were found by lintball." >&2
   echo "To detect and auto-fix issues before pushing, install lintball's git hooks." >&2
