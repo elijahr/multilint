@@ -72,8 +72,6 @@ cli_entrypoint() {
   declare -a paths=()
 
   num_jobs="${LINTBALL_NUM_JOBS}"
-  echo "zzzzzz"
-  find .
 
   # Parse subcommand
   case "${1:-}" in
@@ -93,7 +91,7 @@ cli_entrypoint() {
               echo "Not in a git repository, cannot use --since" >&2
               return 1
             fi
-            if ! git cat-file -e "${commit}^{commit}" 2>/dev/null; then
+            if ! git rev-parse "${commit}" 1>/dev/null 2>/dev/null; then
               echo "Invalid commit: ${commit}" >&2
               return 1
             fi

@@ -1,6 +1,5 @@
 .*
 *
-!.git
 !.gitignore
 !.lintballrc.json
 !bin/
@@ -13,11 +12,8 @@
 !package.json
 !README.md
 !scripts/
-!test/
 !tools/.eslintrc.cjs
 !tools/.prettierrc.json
-!tools/Gemfile
-!tools/Gemfile.lock
 !tools/package-lock.json
 !tools/package.json
 !tools/pip-requirements.txt

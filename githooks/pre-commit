@@ -4,18 +4,18 @@
 
 set -eu
 
-parent_dir=$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)
-
-if [[ -f "${parent_dir}/configs/lintballrc-defaults.json" ]]; then
-  # This is lintball itself
-  "${parent_dir}"/scripts/build-local-docker-image.sh
-  docker run --rm -v "${parent_dir}:/workspace" lintball:local lintball pre-commit
-else
-  if [[ -z ${GIT_DIR:-} ]]; then
-    echo "Error: Not a git repository."
-    exit 1
-  fi
-
-  workspace=$(git rev-parse --show-toplevel)
-  docker run --rm -v "${workspace}:/workspace" elijahru/lintball:latest lintball pre-commit
+workspace=$(git rev-parse --show-toplevel || true)
+if [[ -z ${workspace} ]]; then
+  echo "Could not determine git repository path" >&2
+  exit 1
 fi
+
+if [[ -f "${workspace}/scripts/build-local-docker-image.sh" ]]; then
+  # This is lintball itself, build and use the local image
+  "${workspace}/scripts/build-local-docker-image.sh"
+  image=lintball:local
+else
+  image=elijahru/lintball:latest
+fi
+
+docker run -v "${workspace}:/workspace" "${image}" lintball pre-commit
