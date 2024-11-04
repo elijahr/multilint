@@ -75,13 +75,13 @@ else
       # Check files which have changed between the merge base and the
       # current commit.
       git fetch origin "${GITHUB_BASE_REF}"
-      IFS= read -r committish < <(git merge-base -a "refs/remotes/origin/${GITHUB_BASE_REF}" "${GITHUB_SHA}")
+      IFS= read -r committish < <(git merge-base -a "refs/remotes/origin/${GITHUB_BASE_REF}" "${GITHUB_SHA}" || true)
     else
       # A push to a non-default, non-PR branch.
       # Check files which have changed between default branch and the current
       # commit.
       git fetch origin "${default_branch}"
-      IFS= read -r committish < <(git merge-base -a "refs/remotes/origin/${default_branch}" "${GITHUB_SHA}")
+      IFS= read -r committish < <(git merge-base -a "refs/remotes/origin/${default_branch}" "${GITHUB_SHA}" || true)
     fi
   fi
   if [[ -z ${committish} ]]; then
