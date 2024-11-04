@@ -65,7 +65,7 @@ else
       echo >&2
       exit 1
     fi
-
+    git show-ref
     if [[ ${GITHUB_REF} == "refs/heads/${default_branch}" ]]; then
       # A push to the default branch.
       # Check files which were changed in the most recent commit.
@@ -75,12 +75,14 @@ else
       # Check files which have changed between the merge base and the
       # current commit.
       git fetch origin "${GITHUB_BASE_REF}"
+      git show-ref
       IFS= read -r committish < <(git merge-base -a "refs/remotes/origin/${GITHUB_BASE_REF}" "${GITHUB_SHA}" || true)
     else
       # A push to a non-default, non-PR branch.
       # Check files which have changed between default branch and the current
       # commit.
       git fetch origin "${default_branch}"
+      git show-ref
       IFS= read -r committish < <(git merge-base -a "refs/remotes/origin/${default_branch}" "${GITHUB_SHA}" || true)
     fi
   fi
