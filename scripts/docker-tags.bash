@@ -30,8 +30,7 @@ fi
 if [[ -n $(command -v jq) ]]; then
   IFS= read -r lintball_version < <(jq -r .version "package.json")
 elif [[ -n $(command -v npm) ]]; then
-  # shellcheck disable=SC2016
-  lintball_version=$(npm -s run env echo '$npm_package_version')
+  lintball_version=$(npm pkg get version --parseable | tr -d '"')
 else
   echo >&2
   echo "Could not find jq or npm. Please install one of them." >&2
