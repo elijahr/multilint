@@ -39,7 +39,7 @@ Most software projects consist of more than one programming language. There's so
 | XML          | `*.xml`                                  |                                [prettier/plugin-xml][19]                                 |
 | YAML         | `*.yml`, `*.yaml`                        |                              [prettier][4], [yamllint][20]                               |
 
-## Installation
+## Installation: git pre-commit hook
 
 lintball runs in a docker container as a git pre-commit hook. To install the githook:
 
@@ -47,7 +47,45 @@ lintball runs in a docker container as a git pre-commit hook. To install the git
 docker run --volume "${PWD}:/workspace" elijahru/lintball lintball install-githooks
 ```
 
-## Usage
+This will run the linters and formatters automatically when you make a git commit.
+
+If any issues are found which cannot be automatically fixed, the commit will be prevented and an error message will be shown.
+
+## Installation: GitHub Actions
+
+An example GitHub Actions workflow for linting your project on push:
+
+```yml
+# yamllint disable rule:line-length
+
+name: Lint
+
+# yamllint disable rule:truthy
+on:
+  pull_request:
+    branches: ["*"]
+  push:
+    branches: ["*"]
+    tags: ["*"]
+# yamllint enable rule:truthy
+
+jobs:
+  lint:
+    name: lint
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # This is necessary for linting only recent changes
+
+      - name: Run lintball
+        uses: elijahr/lintball@v2
+```
+
+## Additional Usage
 
 If you need functionality besides the pre-commit hook, you may run via:
 
@@ -139,37 +177,6 @@ Examples:
   $ lintball install-tools --all         # Install all tools.
   $ lintball install-tools py js yaml    # Install tools for checking Python,
                                          # JavaScript, & YAML.
-```
-
-## Continuous Integration
-
-An example GitHub Actions workflow for linting your project:
-
-```yml
-# yamllint disable rule:line-length
-
-name: Lint
-on:
-  pull_request:
-    branches: ["*"]
-  push:
-    branches: ["*"]
-    tags: ["*"]
-
-jobs:
-  lint:
-    name: lint
-
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0  # This is necessary for linting only recent changes
-
-      - name: Run lintball
-        uses: elijahr/lintball@v2
 ```
 
 ## Configuration
