@@ -182,11 +182,10 @@ config_load() {
 }
 
 confirm_copy() {
-  local src dest answer symlink
+  local src dest answer
   src="${1#src=}"
   dest="${2#dest=}"
   answer="${3#answer=}"
-  symlink="${4#symlink=}"
   if [ -d "${src}" ] || [ -d "${dest}" ]; then
     echo >&2
     echo "Source and destination must be file paths, not directories." >&2
@@ -213,14 +212,8 @@ confirm_copy() {
   if [ ! -d "$(dirname "${dest}")" ]; then
     mkdir -p "$(dirname "${dest}")"
   fi
-  if [ "$symlink" = "yes" ]; then
-    rm -rf "$dest"
-    ln -s "$src" "$dest"
-    echo "Linked ${src//${HOME}/"~"} → ${dest//${HOME}/"~"}"
-  else
-    cp -Rf "$src" "$dest"
-    echo "Copied ${src//${HOME}/"~"} → ${dest//${HOME}/"~"}"
-  fi
+  cp -Rf "$src" "$dest"
+  echo "Copied ${src//${HOME}/"~"} → ${dest//${HOME}/"~"}"
 }
 
 documentation_link() {

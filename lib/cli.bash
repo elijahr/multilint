@@ -357,7 +357,7 @@ subcommand_install_githooks() {
   set +f
   for hook in "${LINTBALL_DIR}/githooks/"*; do
     dest="${hooks_path}/$(basename "${hook}")"
-    confirm_copy "src=${hook}" "dest=${dest}" "answer=${answer}" "symlink=yes"
+    confirm_copy "src=${hook}" "dest=${dest}" "answer=${answer}"
   done
   set -f
 
@@ -375,8 +375,7 @@ subcommand_install_lintballrc() {
   confirm_copy \
     "src=${LINTBALL_DIR}/configs/lintballrc-ignores.json" \
     "dest=${path}/.lintballrc.json" \
-    "answer=${answer}" \
-    "symlink=no"
+    "answer=${answer}"
 }
 
 subcommand_install_tools() {
