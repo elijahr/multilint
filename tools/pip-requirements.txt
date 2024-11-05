@@ -1,7 +1,7 @@
 autoflake==2.3.1
-autopep8==2.1.0
-black[d]==24.3.0
+autopep8==2.3.1
+black[d]==24.10.0
 docformatter==1.7.5
 isort==5.13.2
-pylint==3.1.0
+pylint==3.3.1
 yamllint==1.35.1

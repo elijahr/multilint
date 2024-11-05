@@ -1,27 +1,27 @@
 {
   "dependencies": {
-    "@babel/eslint-parser": "latest",
-    "@prettier/plugin-pug": "latest",
-    "@prettier/plugin-xml": "latest",
-    "eslint": "latest",
-    "eslint-config-airbnb": "latest",
-    "eslint-config-prettier": "latest",
-    "eslint-plugin-import": "latest",
-    "eslint-plugin-jsx-a11y": "latest",
-    "eslint-plugin-prettier": "latest",
-    "eslint-plugin-react": "latest",
-    "install-peerdeps": "latest",
-    "prettier": "latest",
-    "prettier-package-json": "latest",
-    "typescript": "latest",
-    "typescript-eslint": "latest",
-    "@typescript-eslint/eslint-plugin": "latest",
-    "@typescript-eslint/parser": "latest"
+    "@babel/eslint-parser": "^7.25.9",
+    "@prettier/plugin-pug": "^3.2.0",
+    "@prettier/plugin-xml": "^3.4.1",
+    "@typescript-eslint/eslint-plugin": "*",
+    "@typescript-eslint/parser": "*",
+    "eslint": "^8.57.1",
+    "eslint-config-airbnb": "^19.0.4",
+    "eslint-config-prettier": "^9.1.0",
+    "eslint-plugin-import": "^2.31.0",
+    "eslint-plugin-jsx-a11y": "^6.10.2",
+    "eslint-plugin-prettier": "^5.2.1",
+    "eslint-plugin-react": "^7.37.2",
+    "install-peerdeps": "^3.0.3",
+    "prettier": "^3.3.3",
+    "prettier-package-json": "^2.8.0",
+    "typescript": "^5.6.3",
+    "typescript-eslint": "^8.13.0"
   },
   "devDependencies": {
-    "bats": "latest",
-    "bats-assert": "git+https://github.com/bats-core/bats-assert.git#master",
-    "bats-support": "latest"
+    "bats": "^1.11.0",
+    "bats-assert": "github:bats-core/bats-assert#e2d855b",
+    "bats-support": "^0.3.0"
   },
   "scripts": {
     "test": "bats ../test --timing",
