@@ -1,6 +1,9 @@
 # yamllint disable rule:line-length
 name: "Run lintball"
 description: "Keep your entire project tidy with one github action"
+branding:
+  icon: 'align-left'
+  color: 'green'
 inputs:
   check-all-files:
     description: "If true, the entire workspace is checked"
