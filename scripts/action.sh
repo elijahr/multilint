@@ -105,7 +105,7 @@ fi
 
 status=0
 docker run \
-  --mount type=bind,source="${workspace}",target=/workspace,readonly \
+  --volume "${workspace}:/workspace" \
   lintball:local \
   lintball check "${lintball_check_args[@]}" || status=$?
 
