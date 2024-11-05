@@ -195,7 +195,10 @@ confirm_copy() {
   fi
   if [ -f "${dest}" ]; then
     if [ -z "${answer}" ]; then
-      read -rp "${dest//${HOME}/"~"} exists. Replace? [y/N] " answer
+      if ! read -rp "${dest//${HOME}/"~"} exists. Replace? [y/N] " answer; then
+        echo "${dest//${HOME}/"~"} exists. Pass --yes to replace." >&2
+        return 1
+      fi
     fi
     case "$answer" in
       [yY]*) ;;
