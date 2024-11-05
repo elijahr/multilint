@@ -31,7 +31,7 @@ teardown() {
   assert [ "$(echo "${output}" | grep -cF " ↳ yamllint...........................ok" -c)" -eq 1 ]
 }
 
-@test 'lintball check --since HEAD~1' {
+@test 'lintball check --since HEAD^1' {
   safe_git add .
   safe_git reset a.html a.xml a.yml
   safe_git commit -m "commit 1"
@@ -52,19 +52,19 @@ teardown() {
   refute_line "a.md"
   # committed before HEAD~2
   refute_line "a.css"
-  run lintball fix --since HEAD~1   # 3>&-
-  run lintball check --since HEAD~1 # 3>&-
+  run lintball fix --since HEAD^1   # 3>&-
+  run lintball check --since HEAD^1 # 3>&-
   assert_success
 }
 
-@test 'lintball check --since HEAD~1 (not a git repo)' {
+@test 'lintball check --since HEAD^1 (not a git repo)' {
   run rm -rf .git
   run lintball check --since HEAD~2 # 3>&-
   assert_failure
   assert_line "Not in a git repository, cannot use --since"
 }
 
-@test 'lintball check --since HEAD~1 (not a valid git commit)' {
+@test 'lintball check --since HEAD^1 (not a valid git commit)' {
   run lintball check --since deadbeef # 3>&-
   assert_failure
   assert_line "Invalid commit: deadbeef"

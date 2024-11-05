@@ -77,7 +77,7 @@ Subcommands:
     -s, --since <commit>    Check only files changed since <commit>. This
                             includes both committed and uncommitted changes.
                             <commit> may be a commit hash or a committish, such
-                            as HEAD~1 or master.
+                            as HEAD^1 or master.
     -j, --jobs <n>          The number of parallel jobs to run.
                               Default: the number of available CPUs.
   fix [paths …]             Recursively fix issues.
@@ -85,7 +85,7 @@ Subcommands:
     -s, --since <commit>    Fix only files changed since <commit>. This
                             includes both committed and uncommitted changes.
                             <commit> may be a commit hash or a committish, such
-                            as HEAD~1 or master.
+                            as HEAD^1 or master.
     -j, --jobs <n>          The number of parallel jobs to run.
                               Default: the number of available CPUs.
   install-githooks          Install lintball githooks in a git repository.
@@ -114,7 +114,7 @@ Subcommands:
 
 Examples:
   $ lintball check                       # Check working directory for issues.
-  $ lintball check --since HEAD~1        # Check working directory for issues
+  $ lintball check --since HEAD^1        # Check working directory for issues
                                          # in all files changes since the commit
                                          # before last.
   $ lintball check foo                   # Check the foo directory for issues.
@@ -207,7 +207,7 @@ If you have a large project with many files, you may want to limit the number of
     if [ "$GITHUB_REF" = "refs/heads/$default_branch" ]; then
       # A push to the default branch.
       # Check files which were changed in the most recent commit.
-      commitish="HEAD~1"
+      commitish="HEAD^1"
     elif [ -n "$GITHUB_BASE_REF" ]; then
       # A pull request.
       # Check files which have changed between the merge base and the

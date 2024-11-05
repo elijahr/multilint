@@ -674,7 +674,7 @@ Subcommands:
     -s, --since <commit>    Check only files changed since <commit>. This
                             includes both committed and uncommitted changes.
                             <commit> may be a commit hash or a committish, such
-                            as HEAD~1 or master.
+                            as HEAD^1 or master.
     -j, --jobs <n>          The number of parallel jobs to run.
                               Default: the number of available CPUs.
   fix [paths …]             Recursively fix issues.
@@ -682,7 +682,7 @@ Subcommands:
     -s, --since <commit>    Fix only files changed since <commit>. This
                             includes both committed and uncommitted changes.
                             <commit> may be a commit hash or a committish, such
-                            as HEAD~1 or master.
+                            as HEAD^1 or master.
     -j, --jobs <n>          The number of parallel jobs to run.
                               Default: the number of available CPUs.
   install-githooks          Install lintball githooks in a git repository.
@@ -714,7 +714,7 @@ Subcommands:
 
 Examples:
   \$ lintball check                       # Check working directory for issues.
-  \$ lintball check --since HEAD~1        # Check working directory for issues
+  \$ lintball check --since HEAD^1        # Check working directory for issues
                                          # in all files changes since the commit
                                          # before last.
   \$ lintball check foo                   # Check the foo directory for issues.
