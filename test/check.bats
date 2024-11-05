@@ -1,16 +1,8 @@
 #!/usr/bin/env bats
 
-load ../node_modules/bats-support/load
-load ../node_modules/bats-assert/load
+load ../tools/node_modules/bats-support/load
+load ../tools/node_modules/bats-assert/load
 load ./lib/test_utils
-
-setup_file() {
-  clear_lock git
-}
-
-teardown_file() {
-  clear_lock git
-}
 
 setup() {
   setup_test
@@ -22,386 +14,348 @@ teardown() {
 
 @test 'lintball check' {
   # Remove all but two files - just an optimization
-  find . -type f -not -name 'a.json' -not -name 'a.yml' -delete
-  run lintball check
+  find . -type f \( -not -name 'a.json' -and -not -name 'a.yml' \) -delete
+  run lintball check # 3>&-
   assert_failure
-  run lintball fix
-  run lintball check
+  assert_line "a.json"
+  assert_line "a.yml"
+  assert [ "$(echo "${output}" | grep -cF " ↳ prettier...........................❌" -c)" -eq 2 ]
+  assert [ "$(echo "${output}" | grep -cF " ↳ yamllint...........................❌" -c)" -eq 1 ]
+  run lintball fix # 3>&-
   assert_success
+  assert [ "$(echo "${output}" | grep -cF " ↳ prettier...........................wrote" -c)" -eq 2 ]
+  assert [ "$(echo "${output}" | grep -cF " ↳ yamllint...........................ok" -c)" -eq 1 ]
+  run lintball check # 3>&-
+  assert_success
+  assert [ "$(echo "${output}" | grep -cF " ↳ prettier...........................ok" -c)" -eq 2 ]
+  assert [ "$(echo "${output}" | grep -cF " ↳ yamllint...........................ok" -c)" -eq 1 ]
 }
 
 @test 'lintball check --since HEAD~1' {
-  get_lock git
-  git add .
-  git reset a.html a.xml a.yml
-  git commit -m "commit 1"
-  git add a.html
-  git commit -m "commit 2"
-  git rm a.md
-  git commit -m "commit 3"
-  git add a.yml
-  run lintball check --since HEAD~2
-  clear_lock git
+  safe_git add .
+  safe_git reset a.html a.xml a.yml
+  safe_git commit -m "commit 1"
+  safe_git add a.html
+  safe_git commit -m "commit 2"
+  safe_git rm a.md
+  safe_git commit -m "commit 3"
+  safe_git add a.yml
+  run lintball check --since HEAD~2 # 3>&-
   assert_failure
   # previously committed
-  assert_line "[warn] a.html"
+  assert_line "a.html"
   # untracked
-  assert_line "[warn] a.xml"
+  assert_line "a.xml"
   # staged, never committed
-  assert_line "[warn] a.yml"
+  assert_line "a.yml"
   # deleted
-  refute_line "[warn] a.md"
+  refute_line "a.md"
   # committed before HEAD~2
-  refute_line "[warn] a.css"
-  run lintball fix --since HEAD~1
-  run lintball check --since HEAD~1
+  refute_line "a.css"
+  run lintball fix --since HEAD~1   # 3>&-
+  run lintball check --since HEAD~1 # 3>&-
   assert_success
 }
 
-@test 'lintball check # lintball lang=bash' {
-  run lintball check "b_bash"
+@test 'lintball check --since HEAD~1 (not a git repo)' {
+  run rm -rf .git
+  run lintball check --since HEAD~2 # 3>&-
   assert_failure
-  run lintball fix "b_bash"
-  run lintball check "b_bash"
+  assert_line "Not in a git repository, cannot use --since"
+}
+
+@test 'lintball check --since HEAD~1 (not a valid git commit)' {
+  run lintball check --since deadbeef # 3>&-
+  assert_failure
+  assert_line "Invalid commit: deadbeef"
+}
+
+@test 'lintball check # lintball lang=bash' {
+  run lintball check "b_bash" # 3>&-
+  assert_failure
+  run lintball fix "b_bash"   # 3>&-
+  run lintball check "b_bash" # 3>&-
   assert_success
 }
 
 @test 'lintball check #!/bin/sh' {
-  run lintball check "a_sh"
+  run lintball check "a_sh" # 3>&-
   assert_failure
-  run lintball fix "a_sh"
-  run lintball check "a_sh"
+  run lintball fix "a_sh"   # 3>&-
+  run lintball check "a_sh" # 3>&-
   assert_success
 }
 
 @test 'lintball check #!/usr/bin/env bash' {
-  run lintball check "a_bash"
+  run lintball check "a_bash" # 3>&-
   assert_failure
-  run lintball fix "a_bash"
-  run lintball check "a_bash"
+  run lintball fix "a_bash"   # 3>&-
+  run lintball check "a_bash" # 3>&-
   assert_success
 }
 
 @test 'lintball check #!/usr/bin/env deno' {
-  run lintball check "b_js"
+  run lintball check "b_js" # 3>&-
   assert_failure
-  run lintball fix "b_js"
-  run lintball check "b_js"
+  run lintball fix "b_js"   # 3>&-
+  run lintball check "b_js" # 3>&-
   assert_success
 }
 
 @test 'lintball check #!/usr/bin/env node' {
-  run lintball check "a_js"
+  run lintball check "a_js" # 3>&-
   assert_failure
-  run lintball fix "a_js"
-  run lintball check "a_js"
+  run lintball fix "a_js"   # 3>&-
+  run lintball check "a_js" # 3>&-
   assert_success
 }
 
 @test 'lintball check #!/usr/bin/env python3' {
-  run lintball check "a_py"
+  run lintball check "a_py" # 3>&-
   assert_failure
-  run lintball fix "a_py"
-  run lintball check "a_py"
-  assert_success
-}
-
-@test 'lintball check #!/usr/bin/env ruby' {
-  run lintball check "a_rb"
-  assert_failure
-  run lintball fix "a_rb"
-  run lintball check "a_rb"
+  run lintball fix "a_py"   # 3>&-
+  run lintball check "a_py" # 3>&-
   assert_success
 }
 
 @test 'lintball check *.bash' {
-  run lintball check "a.bash"
+  run lintball check "a.bash" # 3>&-
   assert_failure
-  run lintball fix "a.bash"
-  run lintball check "a.bash"
+  run lintball fix "a.bash"   # 3>&-
+  run lintball check "a.bash" # 3>&-
   assert_success
 }
 
 @test 'lintball check *.bats' {
-  run lintball check "a.bats"
+  run lintball check "a.bats" # 3>&-
   assert_failure
-  run lintball fix "a.bats"
-  run lintball check "a.bats"
-  assert_success
-}
-
-@test 'lintball check *.c' {
-  run lintball check "a.c"
-  assert_failure
-  run lintball fix "a.c"
-  run lintball check "a.c"
-  assert_success
-}
-
-@test 'lintball check *.cpp' {
-  run lintball check "a.cpp"
-  assert_failure
-  run lintball fix "a.cpp"
-  run lintball check "a.cpp"
-  assert_success
-}
-
-@test 'lintball check *.cs' {
-  run lintball check "a.cs"
-  assert_failure
-  run lintball fix "a.cs"
-  run lintball check "a.cs"
+  run lintball fix "a.bats"   # 3>&-
+  run lintball check "a.bats" # 3>&-
   assert_success
 }
 
 @test 'lintball check *.css' {
-  run lintball check "a.css"
+  run lintball check "a.css" # 3>&-
   assert_failure
-  run lintball fix "a.css"
-  run lintball check "a.css"
-  assert_success
-}
-
-@test 'lintball check *.d' {
-  run lintball check "a.d"
-  assert_failure
-  run lintball fix "a.d"
-  run lintball check "a.d"
-  assert_success
-}
-
-@test 'lintball check *.dash' {
-  run lintball check "a.dash"
-  assert_failure
-  run lintball fix "a.dash"
-  run lintball check "a.dash"
-  assert_success
-}
-
-@test 'lintball check *.h' {
-  run lintball check "a.h"
-  assert_failure
-  run lintball fix "a.h"
-  run lintball check "a.h"
-  assert_success
-}
-
-@test 'lintball check *.hpp' {
-  run lintball check "a.hpp"
-  assert_failure
-  run lintball fix "a.hpp"
-  run lintball check "a.hpp"
+  run lintball fix "a.css"   # 3>&-
+  run lintball check "a.css" # 3>&-
   assert_success
 }
 
 @test 'lintball check *.html' {
-  run lintball check "a.html"
+  run lintball check "a.html" # 3>&-
   assert_failure
-  run lintball fix "a.html"
-  run lintball check "a.html"
-  assert_success
-}
-
-@test 'lintball check *.java' {
-  run lintball check "a.java"
-  assert_failure
-  run lintball fix "a.java"
-  run lintball check "a.java"
+  run lintball fix "a.html"   # 3>&-
+  run lintball check "a.html" # 3>&-
   assert_success
 }
 
 @test 'lintball check *.js' {
-  run lintball check "a.js"
+  run lintball check "a.js" # 3>&-
   assert_failure
-  run lintball fix "a.js"
-  run lintball check "a.js"
+  run lintball fix "a.js"   # 3>&-
+  run lintball check "a.js" # 3>&-
   assert_success
 }
 
 @test 'lintball check *.json' {
-  run lintball check "a.json"
+  run lintball check "a.json" # 3>&-
   assert_failure
-  run lintball fix "a.json"
-  run lintball check "a.json"
+  run lintball fix "a.json"   # 3>&-
+  run lintball check "a.json" # 3>&-
   assert_success
 }
 
 @test 'lintball check *.jsx' {
-  run lintball check "a.jsx"
+  run lintball check "a.jsx" # 3>&-
   assert_failure
-  run lintball fix "a.jsx"
-  run lintball check "a.jsx"
+  run lintball fix "a.jsx"   # 3>&-
+  run lintball check "a.jsx" # 3>&-
   assert_success
 }
 
 @test 'lintball check *.ksh' {
-  run lintball check "a.ksh"
+  run lintball check "a.ksh" # 3>&-
   assert_failure
-  run lintball fix "a.ksh"
-  run lintball check "a.ksh"
-  assert_success
-}
-
-@test 'lintball check *.lua' {
-  run lintball check "a.lua"
-  assert_failure
-  run lintball fix "a.lua"
-  run lintball check "a.lua"
-  assert_success
-}
-
-@test 'lintball check *.m' {
-  run lintball check "a.m"
-  assert_failure
-  run lintball fix "a.m"
-  run lintball check "a.m"
+  run lintball fix "a.ksh"   # 3>&-
+  run lintball check "a.ksh" # 3>&-
   assert_success
 }
 
 @test 'lintball check *.md' {
-  run lintball check "a.md"
+  run lintball check "a.md" # 3>&-
   assert_failure
-  run lintball fix "a.md"
-  run lintball check "a.md"
+  run lintball fix "a.md"   # 3>&-
+  run lintball check "a.md" # 3>&-
   assert_success
 }
 
 @test 'lintball check *.mdx' {
-  run lintball check "a.mdx"
+  run lintball check "a.mdx" # 3>&-
   assert_failure
-  run lintball fix "a.mdx"
-  run lintball check "a.mdx"
+  run lintball fix "a.mdx"   # 3>&-
+  run lintball check "a.mdx" # 3>&-
   assert_success
 }
 
 @test 'lintball check *.mksh' {
-  run lintball check "a.mksh"
+  run lintball check "a.mksh" # 3>&-
   assert_failure
-  run lintball fix "a.mksh"
-  run lintball check "a.mksh"
-  assert_success
-}
-
-@test 'lintball check *.nim' {
-  run lintball check "a.nim"
-  assert_failure
-  run lintball fix "a.nim"
-  run lintball check "a.nim"
+  run lintball fix "a.mksh"   # 3>&-
+  run lintball check "a.mksh" # 3>&-
   assert_success
 }
 
 @test 'lintball check *.pug' {
-  run lintball check "a.pug"
+  run lintball check "a.pug" # 3>&-
   assert_failure
-  run lintball fix "a.pug"
-  run lintball check "a.pug"
+  run lintball fix "a.pug"   # 3>&-
+  run lintball check "a.pug" # 3>&-
   assert_success
 }
 
 @test 'lintball check *.py' {
-  run lintball check "a.py"
+  run lintball check "a.py" # 3>&-
   assert_failure
-  run lintball fix "a.py"
-  run lintball check "a.py"
+  run lintball fix "a.py"   # 3>&-
+  run lintball check "a.py" # 3>&-
   assert_success
 }
 
 @test 'lintball check *.pyi' {
-  run lintball check "c.pyi"
+  run lintball check "c.pyi" # 3>&-
   assert_failure
-  run lintball fix "c.pyi"
-  run lintball check "c.pyi"
+  run lintball fix "c.pyi"   # 3>&-
+  run lintball check "c.pyi" # 3>&-
   assert_success
 }
 
 @test 'lintball check *.pyx' {
-  run lintball check "b.pyx"
+  run lintball check "b.pyx" # 3>&-
   assert_failure
-  run lintball fix "b.pyx"
-  run lintball check "b.pyx"
-  assert_success
-}
-
-@test 'lintball check *.rb' {
-  run lintball check "a.rb"
-  assert_failure
-  run lintball fix "a.rb"
-  run lintball check "a.rb"
+  run lintball fix "b.pyx"   # 3>&-
+  run lintball check "b.pyx" # 3>&-
   assert_success
 }
 
 @test 'lintball check *.scss' {
-  run lintball check "a.scss"
+  run lintball check "a.scss" # 3>&-
   assert_failure
-  run lintball fix "a.scss"
-  run lintball check "a.scss"
+  run lintball fix "a.scss"   # 3>&-
+  run lintball check "a.scss" # 3>&-
   assert_success
 }
 
 @test 'lintball check *.sh' {
-  run lintball check "a.sh"
+  run lintball check "a.sh" # 3>&-
   assert_failure
-  run lintball fix "a.sh"
-  run lintball check "a.sh"
+  run lintball fix "a.sh"   # 3>&-
+  run lintball check "a.sh" # 3>&-
+  assert_success
+}
+
+@test 'lintball check *.ts' {
+  run lintball check "a.ts" # 3>&-
+  assert_failure
+  run lintball fix "a.ts"   # 3>&-
+  run lintball check "a.ts" # 3>&-
   assert_success
 }
 
 @test 'lintball check *.tsx' {
-  run lintball check "a.tsx"
+  run lintball check "a.tsx" # 3>&-
   assert_failure
-  run lintball fix "a.tsx"
-  run lintball check "a.tsx"
+  run lintball fix "a.tsx"   # 3>&-
+  run lintball check "a.tsx" # 3>&-
   assert_success
 }
 
 @test 'lintball check *.xml' {
-  run lintball check "a.xml"
+  run lintball check "a.xml" # 3>&-
   assert_failure
-  run lintball fix "a.xml"
-  run lintball check "a.xml"
+  run lintball fix "a.xml"   # 3>&-
+  run lintball check "a.xml" # 3>&-
   assert_success
 }
 
 @test 'lintball check *.yml' {
-  run lintball check "a.yml"
+  run lintball check "a.yml" # 3>&-
   assert_failure
-  run lintball fix "a.yml"
-  run lintball check "a.yml"
+  run lintball fix "a.yml"   # 3>&-
+  run lintball check "a.yml" # 3>&-
   assert_success
 }
 
-@test 'lintball check Cargo.toml' {
-  run lintball check "Cargo.toml"
-  assert_failure
-  run lintball fix "Cargo.toml"
-  run lintball check "Cargo.toml"
+@test 'lintball check handles implicit path' {
+  mkdir foo
+  cd foo
+  run lintball check # 3>&-
   assert_success
+  assert_line "No handled files found in current directory."
 }
 
-@test 'lintball check does not check ignored files' {
-  mkdir -p vendor
-  cp a.rb vendor/
-  run lintball check vendor/a.rb
+@test 'lintball check handles . path' {
+  mkdir foo
+  cd foo
+  run lintball check . # 3>&-
   assert_success
+  assert_line "No handled files found in directory '.'."
 }
 
 @test 'lintball check handles paths with spaces' {
   mkdir -p "aaa aaa/bbb bbb"
   cp "a.yml" "aaa aaa/bbb bbb/a b.yml"
-  run lintball check "aaa aaa/bbb bbb/a b.yml"
+  run lintball check "aaa aaa/bbb bbb/a b.yml" # 3>&-
   assert_failure
-  assert_line "[warn] aaa aaa/bbb bbb/a b.yml"
+  assert_line "+key: value"
+  assert_line "+hello: world"
 }
 
 @test 'lintball check package.json' {
-  run lintball check "package.json"
+  run lintball check "package.json" # 3>&-
   assert_failure
-  run lintball fix "package.json"
-  run lintball check "package.json"
+  run lintball fix "package.json"   # 3>&-
+  run lintball check "package.json" # 3>&-
   assert_success
 }
 
-@test 'lintball check unhandled is a no-op' {
-  run lintball check "a.txt"
+@test 'lintball check ignored file fails' {
+  run lintball check "a.txt" # 3>&-
   assert_success
+  assert_line "File not handled: 'a.txt'."
+}
+
+@test 'lintball check ignored directory fails' {
+  mkdir a_dir
+  cp a.yml a_dir/
+  run lintball check "a_dir" # 3>&-
+  assert_success
+  assert_line "No handled files found in directory 'a_dir'."
+}
+
+@test 'lintball check ignored file in ignored directory fails' {
+  mkdir a_dir
+  cp a.txt a_dir/
+  run lintball check "a_dir" # 3>&-
+  assert_success
+  assert_line "No handled files found in directory 'a_dir'."
+}
+
+@test 'lintball check handled file in ignored directory fails' {
+  mkdir a_dir
+  cp a.yml a_dir/
+  run lintball check "a_dir/a.yml" # 3>&-
+  assert_success
+  assert_line "File not handled with current configuration: 'a_dir/a.yml'."
+}
+
+@test 'lintball check missing' {
+  run lintball check "missing.txt" # 3>&-
+  assert_failure
+  assert_line "File not found: 'missing.txt'."
+
+  run lintball check "missing1.txt" "missing2.txt" # 3>&-
+  assert_failure
+  assert_line "File not found: 'missing1.txt'."
+  assert_line "File not found: 'missing2.txt'."
 }

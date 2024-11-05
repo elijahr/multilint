@@ -1,59 +1,213 @@
 {
+  "lintballrc_version": "2",
   "check_args": {
-    "autoflake": "--check --expand-star-imports --remove-all-unused-imports --remove-duplicate-keys --remove-unused-variables --ignore-init-module-imports",
-    "autopep8": "--global-config '$LINTBALL_DIR/configs/pyproject.toml' --diff",
-    "black": "--config '$LINTBALL_DIR/configs/pyproject.toml' --check",
-    "clippy": "-- -D clippy::all",
-    "docformatter": "--check",
-    "isort": "--settings-path '$LINTBALL_DIR/configs/pyproject.toml' --check-only",
-    "nimfmt": "",
-    "nimpretty": "",
-    "prettier": "--config '$LINTBALL_DIR/configs/.prettierrc.json'",
-    "prettier-eslint": "--eslint-config-path '$LINTBALL_DIR/configs/.eslintrc.json' --config '$LINTBALL_DIR/configs/.prettierrc.json'",
-    "pylint": "--rcfile='$LINTBALL_DIR/configs/pyproject.toml'",
-    "rubocop": "--config '$LINTBALL_DIR/configs/rubocop.yml'",
-    "shellcheck": "--external-sources --shell=$lang --severity=style --exclude=SC2164",
-    "shfmt": "-d -i 2 -s -ci -ln '$lang'",
-    "stylua": "--check",
-    "uncrustify": "-c '$LINTBALL_DIR/configs/uncrustify.$lang.cfg'",
-    "yamllint": "--strict --config-file '$LINTBALL_DIR/configs/yamllint.yml'"
+    "autoflake": [
+      "{{tool}}",
+      "--check",
+      "--expand-star-imports",
+      "--remove-all-unused-imports",
+      "--remove-duplicate-keys",
+      "--remove-unused-variables",
+      "--ignore-init-module-imports",
+      "{{path}}"
+    ],
+    "autopep8": [
+      "{{tool}}",
+      "--global-config",
+      "{{lintball_dir}}/configs/pyproject.toml",
+      "--diff",
+      "{{path}}"
+    ],
+    "black": [
+      "{{tool}}",
+      "--config",
+      "{{lintball_dir}}/configs/pyproject.toml",
+      "--check",
+      "{{path}}"
+    ],
+    "docformatter": ["{{tool}}", "--check", "{{path}}"],
+    "eslint": [
+      "npm",
+      "--prefix={{lintball_dir}}/tools",
+      "run",
+      "--silent",
+      "{{tool}}",
+      "--",
+      "--no-eslintrc",
+      "--resolve-plugins-relative-to",
+      ".",
+      "--config",
+      "{{lintball_dir}}/tools/.eslintrc.cjs",
+      "{{color}}",
+      "{{path}}"
+    ],
+    "isort": [
+      "{{tool}}",
+      "--settings-path",
+      "{{lintball_dir}}/configs/pyproject.toml",
+      "--check-only",
+      "{{path}}"
+    ],
+    "prettier": [
+      "npm",
+      "--prefix={{lintball_dir}}/tools",
+      "run",
+      "--silent",
+      "{{tool}}",
+      "--",
+      "--config",
+      "{{lintball_dir}}/tools/.prettierrc.json",
+      "{{path}}"
+    ],
+    "pylint": [
+      "{{tool}}",
+      "-f",
+      "{{format}}",
+      "--rcfile={{lintball_dir}}/configs/pyproject.toml",
+      "{{path}}"
+    ],
+    "shellcheck": [
+      "{{tool}}",
+      "--format={{format}}",
+      "--color={{color}}",
+      "--external-sources",
+      "--shell={{lang}}",
+      "--severity=style",
+      "--enable=check-extra-masked-returns,check-set-e-suppressed,check-unassigned-uppercase,deprecate-which",
+      "{{path}}"
+    ],
+    "shfmt": [
+      "{{tool}}",
+      "-d",
+      "-i",
+      "2",
+      "-s",
+      "-ci",
+      "-ln",
+      "{{lang}}",
+      "{{path}}"
+    ],
+    "yamllint": [
+      "{{tool}}",
+      "--format",
+      "{{format}}",
+      "--strict",
+      "--config-file",
+      "{{lintball_dir}}/configs/yamllint.yml",
+      "{{path}}"
+    ]
   },
   "write_args": {
-    "autoflake": "--in-place --expand-star-imports --remove-all-unused-imports --remove-duplicate-keys --remove-unused-variables --ignore-init-module-imports",
-    "autopep8": "--global-config '$LINTBALL_DIR/configs/pyproject.toml' --in-place",
-    "black": "--config '$LINTBALL_DIR/configs/pyproject.toml'",
-    "clippy": "--allow-no-vcs --fix -Z unstable-options -- -D clippy::all",
-    "docformatter": "--in-place",
-    "isort": "--settings-path '$LINTBALL_DIR/configs/pyproject.toml'",
-    "nimfmt": "-i",
-    "nimpretty": "",
-    "prettier": "--write --config '$LINTBALL_DIR/configs/.prettierrc.json'",
-    "prettier-eslint": "--write --eslint-config-path '$LINTBALL_DIR/configs/.eslintrc.json' --config '$LINTBALL_DIR/configs/.prettierrc.json'",
-    "pylint": "--rcfile='$LINTBALL_DIR/configs/pyproject.toml'",
-    "rubocop": "--config '$LINTBALL_DIR/configs/rubocop.yml' --auto-correct-all",
-    "shellcheck": "--external-sources --shell=$lang --severity=style --exclude=SC2164",
-    "shfmt": "-d -i 2 -s -ci -ln '$lang' -w",
-    "stylua": "",
-    "uncrustify": "-c '$LINTBALL_DIR/configs/uncrustify.$lang.cfg'",
-    "yamllint": "--strict --config-file '$LINTBALL_DIR/configs/yamllint.yml'"
+    "autoflake": [
+      "{{tool}}",
+      "--in-place",
+      "--expand-star-imports",
+      "--remove-all-unused-imports",
+      "--remove-duplicate-keys",
+      "--remove-unused-variables",
+      "--ignore-init-module-imports",
+      "{{path}}"
+    ],
+    "autopep8": [
+      "{{tool}}",
+      "--global-config",
+      "{{lintball_dir}}/configs/pyproject.toml",
+      "--in-place",
+      "{{path}}"
+    ],
+    "black": [
+      "{{tool}}",
+      "--config",
+      "{{lintball_dir}}/configs/pyproject.toml",
+      "{{path}}"
+    ],
+    "docformatter": ["{{tool}}", "--in-place", "{{path}}"],
+    "eslint": [
+      "npm",
+      "--prefix={{lintball_dir}}/tools",
+      "run",
+      "--silent",
+      "{{tool}}",
+      "--",
+      "--no-eslintrc",
+      "--resolve-plugins-relative-to",
+      ".",
+      "--config",
+      "{{lintball_dir}}/tools/.eslintrc.cjs",
+      "--output-file",
+      "{{output_file}}",
+      "{{color}}",
+      "--fix",
+      "{{path}}"
+    ],
+    "isort": [
+      "{{tool}}",
+      "--settings-path",
+      "{{lintball_dir}}/configs/pyproject.toml",
+      "{{path}}"
+    ],
+    "prettier": [
+      "npm",
+      "--prefix={{lintball_dir}}/tools",
+      "run",
+      "--silent",
+      "{{tool}}",
+      "--",
+      "--write",
+      "--config",
+      "{{lintball_dir}}/tools/.prettierrc.json",
+      "{{path}}"
+    ],
+    "pylint": [
+      "{{tool}}",
+      "-f",
+      "{{format}}",
+      "--rcfile={{lintball_dir}}/configs/pyproject.toml",
+      "{{path}}"
+    ],
+    "shellcheck": [
+      "{{tool}}",
+      "--format={{format}}",
+      "--color={{color}}",
+      "--external-sources",
+      "--shell={{lang}}",
+      "--severity=style",
+      "--enable=check-extra-masked-returns,check-set-e-suppressed,check-unassigned-uppercase,deprecate-which",
+      "{{path}}"
+    ],
+    "shfmt": [
+      "{{tool}}",
+      "-d",
+      "-i",
+      "2",
+      "-s",
+      "-ci",
+      "-ln",
+      "{{lang}}",
+      "-w",
+      "{{path}}"
+    ],
+    "yamllint": [
+      "{{tool}}",
+      "--format",
+      "{{format}}",
+      "--strict",
+      "--config-file",
+      "{{lintball_dir}}/configs/yamllint.yml",
+      "{{path}}"
+    ]
   },
   "use": {
     "autoflake": true,
     "autopep8": true,
     "black": true,
-    "clippy": true,
     "docformatter": true,
     "isort": true,
-    "nimfmt": true,
-    "nimpretty": true,
     "prettier": true,
-    "prettier-eslint": true,
+    "eslint": true,
     "pylint": true,
-    "rubocop": true,
     "shellcheck": true,
     "shfmt": true,
-    "stylua": true,
-    "uncrustify": true,
     "yamllint": true
   },
   "num_jobs": "auto"

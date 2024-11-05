@@ -1,32 +1,21 @@
 #!/usr/bin/env bash
 
-set -ueo pipefail
+# Run lintball using Docker on git commit
 
-if [ -z "${LINTBALL_DIR:-}" ]; then
-  if [ -f "${PWD}/bin/lintball" ]; then
-    # lintball itself
-    LINTBALL_DIR="${PWD}"
-    export LINTBALL_DIR
-  elif [ -f "${PWD}/node_modules/lintball/bin/lintball" ]; then
-    # lintball installed via npm locally
-    LINTBALL_DIR="${PWD}/node_modules/lintball"
-    export LINTBALL_DIR
-  fi
-fi
+set -eu
 
-if [ -n "${LINTBALL_DIR:-}" ]; then
-  "${LINTBALL_DIR}/bin/lintball" pre-commit
-elif [ -n "$(command -v lintball)" ]; then
-  lintball pre-commit
-else
-  {
-    echo
-    echo "Error: could not find a lintball executable, but lintball's pre-commit hook is enabled."
-    echo
-    echo "Install lintball with:"
-    echo
-    echo '  npm install lintball'
-    echo
-  } >&2
+workspace=$(git rev-parse --show-toplevel || true)
+if [[ -z ${workspace} ]]; then
+  echo "Could not determine git repository path" >&2
   exit 1
 fi
+
+if [[ -f "${workspace}/scripts/build-local-docker-image.sh" ]]; then
+  # This is lintball itself, build and use the local image
+  "${workspace}/scripts/build-local-docker-image.sh"
+  image=lintball:local
+else
+  image=elijahru/lintball:latest
+fi
+
+docker run -v "${workspace}:/workspace" "${image}" lintball pre-commit

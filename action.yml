@@ -1,0 +1,30 @@
+# yamllint disable rule:line-length
+name: "Run lintball"
+description: "Keep your entire project tidy with one github action"
+inputs:
+  check-all-files:
+    description: "If true, the entire workspace is checked"
+    required: true
+    default: "false"
+  committish:
+    description: "The git commit hash, branch name, or tag name to check against"
+    required: true
+    default: "<auto>"
+  default-branch:
+    description: "The git branch to compare against. Usually master, main, or devel."
+    required: true
+    default: "<auto>"
+  workspace:
+    description: "The filesystem path to check"
+    required: true
+    default: ""
+runs:
+  using: "composite"
+  steps:
+    - run: ./scripts/action.sh
+      shell: bash
+      env:
+        INPUT_CHECK_ALL_FILES: ${{ inputs.check-all-files }}
+        INPUT_COMMITTISH: ${{ inputs.committish }}
+        INPUT_DEFAULT_BRANCH: ${{ inputs.default-branch }}
+        INPUT_WORKSPACE: ${{ inputs.workspace }}

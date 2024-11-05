@@ -1,7 +1,7 @@
 {
+  "lintballrc_version": "2",
   "ignores": [
     "*/.build/*",
-    "*/.bundle/*",
     "*/.cache/*",
     "*/.git/*",
     "*/.hg/*",
@@ -11,9 +11,7 @@
     "*/.tox/*",
     "*/__pycache__/*",
     "*/build/*",
-    "*/Cargo.lock",
     "*/dist/*",
-    "*/Gemfile.lock",
     "*/node_modules/*",
     "*/package-lock.json",
     "*/Pipfile.lock",

@@ -1,0 +1,12 @@
+# /etc/dpkg/dpkg.cfg.d/01nodoc
+
+# Delete locales
+path-exclude=/usr/share/locale/*;
+path-exclude=/usr/share/X11/locale/*;
+
+# Delete man pages
+path-exclude=/usr/share/man/*;
+
+# Delete docs
+path-exclude=/usr/share/doc/*;
+path-include=/usr/share/doc/*/copyright;

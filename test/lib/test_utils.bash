@@ -1,72 +1,34 @@
-PROJECT_DIR="$(
-  cd "$(dirname "$BATS_TEST_DIRNAME")"
-  pwd
-)"
-export PROJECT_DIR
+# shellcheck disable=2164
 
-ORIGINAL_PATH="$PATH"
-export ORIGINAL_PATH
-
-get_lock() {
-  local lock_path
-  mkdir -p "${PROJECT_DIR}/.tmp"
-  lock_path="${PROJECT_DIR}/.tmp/${1}.lock"
-  # shellcheck disable=SC2188
-  while ! {
-    set -C
-    2>/dev/null >"$lock_path"
-  }; do
-    sleep 1
-    echo "waiting for lock $lock_path"
-  done
-}
-
-clear_lock() {
-  local lock_path
-  mkdir -p "${PROJECT_DIR}/.tmp"
-  lock_path="${PROJECT_DIR}/.tmp/${1}.lock"
-  rm -f "$lock_path"
+safe_git() {
+  # run git without loading ~/.gitconfig
+  HOME=/dev/null git "$@" || return $?
 }
 
 setup_test() {
-  LINTBALL_DIR="$PROJECT_DIR"
+  LINTBALL_DIR="$(
+    cd "$(dirname "${BATS_TEST_DIRNAME}")" || exit 1
+    pwd
+  )"
   export LINTBALL_DIR
-  PATH="${LINTBALL_DIR}/bin:$PATH"
+  ORIGINAL_PATH="${ORIGINAL_PATH:-${PATH}}"
+  export ORIGINAL_PATH
+
+  PATH="${LINTBALL_DIR}/bin:${PATH}"
   export PATH
 
-  TEST_PROJECT_DIR="$(mktemp -d)/fixture"
-  export TEST_PROJECT_DIR
-  cp -r "${LINTBALL_DIR}/test/fixture/" "${TEST_PROJECT_DIR}/"
-  cp "${LINTBALL_DIR}/.gitignore" "${TEST_PROJECT_DIR}/"
-  rustup override set nightly --path "$TEST_PROJECT_DIR"
-  cd "$TEST_PROJECT_DIR"
-  asdf local nim ref:version-1-6
-  get_lock git
-  git config --global init.defaultBranch devel
-  git init .
-  git config --local user.name "Bats Test"
-  git config --local user.email "test@example.org"
-  clear_lock git
+  rm -r "${BATS_TEST_TMPDIR}"
+  cp -r "${LINTBALL_DIR}/test/fixture" "${BATS_TEST_TMPDIR}"
+  cp "${LINTBALL_DIR}/.gitignore" "${BATS_TEST_TMPDIR}/"
+
+  cd "${BATS_TEST_TMPDIR}"
+  safe_git init --initial-branch=devel .
+  safe_git config --local user.name "Bats Test"
+  safe_git config --local user.email "test@example.org"
 }
 
 teardown_test() {
-  rm -rf "$(dirname "$TEST_PROJECT_DIR")"
-  unset TEST_PROJECT_DIR
   unset LINTBALL_DIR
-  PATH="$ORIGINAL_PATH"
+  PATH="${ORIGINAL_PATH}"
   export PATH
-}
-
-git_branch() {
-  (
-    cd "$LINTBALL_REPO"
-    git rev-parse --abbrev-ref HEAD
-  )
-}
-
-git_sha() {
-  (
-    cd "$LINTBALL_REPO"
-    git rev-parse HEAD
-  )
 }

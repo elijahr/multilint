@@ -1,53 +1,23 @@
 {
-  "devDependencies": {
-    "bats": "^1.8.2",
-    "bats-assert": "git+https://github.com/bats-core/bats-assert.git#78fa631",
-    "bats-support": "^0.3.0"
-  },
-  "dependencies": {
-    "@prettier/plugin-pug": "^2.3.0",
-    "@prettier/plugin-ruby": "^3.2.2",
-    "@prettier/plugin-xml": "^2.2.0",
-    "@babel/eslint-parser": "^7.19.1",
-    "eslint": "^8.27.0",
-    "eslint-config-airbnb": "^19.0.4",
-    "eslint-config-prettier": "^8.5.0",
-    "eslint-plugin-import": "^2.26.0",
-    "eslint-plugin-jsx-a11y": "^6.6.1",
-    "eslint-plugin-prettier": "^4.2.1",
-    "eslint-plugin-react": "^7.31.10",
-    "install-peerdeps": "^3.0.3",
-    "prettier": "^2.7.1",
-    "prettier-eslint-cli": "^7.1.0",
-    "prettier-package-json": "^2.7.0",
-    "prettier-plugin-java": "^1.6.2",
-    "typescript": "<3.6.0"
-  },
-  "scripts": {
-    "test": "bats test --tap",
-    "prettier": "cd \"$npm_config_path\" && prettier",
-    "prettier-eslint": "cd \"$npm_config_path\" && prettier-eslint"
-  },
   "bin": {
     "lintball": "./bin/lintball"
   },
   "name": "lintball",
   "description": "A wrapper script around linters (static code analysis tools) and code formatters (prettier, black, etc).",
-  "version": "1.6.1",
+  "version": "2.0.0",
   "directories": {
     "lib": "lib",
-    "test": "test"
+    "test": "test",
+    "bin": "bin"
   },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/elijahr/lintball.git"
   },
   "keywords": [
-    "ruby",
     "lint",
     "python",
     "bash",
-    "nim",
     "prettier",
     "tidy",
     "bats",

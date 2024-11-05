@@ -1,0 +1,31 @@
+{
+  "dependencies": {
+    "@babel/eslint-parser": "latest",
+    "@prettier/plugin-pug": "latest",
+    "@prettier/plugin-xml": "latest",
+    "eslint": "latest",
+    "eslint-config-airbnb": "latest",
+    "eslint-config-prettier": "latest",
+    "eslint-plugin-import": "latest",
+    "eslint-plugin-jsx-a11y": "latest",
+    "eslint-plugin-prettier": "latest",
+    "eslint-plugin-react": "latest",
+    "install-peerdeps": "latest",
+    "prettier": "latest",
+    "prettier-package-json": "latest",
+    "typescript": "latest",
+    "typescript-eslint": "latest",
+    "@typescript-eslint/eslint-plugin": "latest",
+    "@typescript-eslint/parser": "latest"
+  },
+  "devDependencies": {
+    "bats": "latest",
+    "bats-assert": "git+https://github.com/bats-core/bats-assert.git#master",
+    "bats-support": "latest"
+  },
+  "scripts": {
+    "test": "bats ../test --timing",
+    "prettier": "cd \"$npm_config_path\" && npx prettier",
+    "eslint": "cd \"$npm_config_path\" && npx eslint"
+  }
+}

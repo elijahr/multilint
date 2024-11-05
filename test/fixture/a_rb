@@ -1,6 +1,0 @@
-#!/usr/bin/env ruby
-           d=[123,456,
-    789,
-    ]
-
-echo d

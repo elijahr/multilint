@@ -1,13 +1,20 @@
-import {h,
-  Component} from          'preact';
+/* eslint-disable import/no-unresolved */
+
+import React from          'react';
 
           export interface HelloWorldProps {
     name:     string
 }
 
-export default    class HelloWorld extends Component<HelloWorldProps, any> {
-    render (props) {
-return <p>
-  Hello {props.name}!</p>
-            }
+
+/* eslint-disable react/prefer-stateless-function */
+export default class HelloWorld extends    React.Component <HelloWorldProps> {
+  render() {
+    const { name
+    
+    } = this.props;
+    return (
+      <div>{name}</div>
+    );
+  }
 }

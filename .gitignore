@@ -1,12 +1,9 @@
 .DS_Store
-**/target
-/.bundle
 /.vscode
-/node_modules
-/python-env
-/tools/.bundle
-/tools/python-env
-/tools/vendor
-/tools/uncrustify-0.75.1
+/test/target
+/test/fixture/target
+/tools/asdf
+/tools/node_modules
 /tools/bin
 /.tmp
+/test/.bats

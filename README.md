@@ -9,10 +9,6 @@ keep your entire project tidy with one command.
 
 lintball is a wrapper script around linters (static code analysis tools) and code formatters (such as prettier, black, etc).
 
-## Who is lintball for?
-
-In no particular order, lintball is for: Pythonistas, Rustaceans, JavaScriptologists, Rubulists, Javanauts, Luaticians, Nimcromancers, and more… lintball is for everyone. Does your programming language of choice have an auto-formatter? Is it not in the list below? We'd love to 🤖 assimilate your scripts, please and thank you. See [Contributing](#contributing).
-
 ## Why use lintball?
 
 Most software projects consist of more than one programming language. There's source code, documentation, configuration files, build scripts, and so on. Each language may have tools to find and fix issues - but configuring CI, git hooks, etc for each of these tools can be tedious - especially if you work on a lot of projects. The goal of lintball is to streamline the installation and running of these tools so that you have more time for the more fun and important things.
@@ -23,36 +19,24 @@ Most software projects consist of more than one programming language. There's so
 | :----------- | ---------------------------------------- | :--------------------------------------------------------------------------------------: |
 | bash         | `*.bash`, `#!/usr/bin/env bash`          |                               [shellcheck][1], [shfmt][1]                                |
 | bats         | `*.bats`, `#!/usr/bin/env bats`          |                               [shellcheck][1], [shfmt][2]                                |
-| C            | `*.c`, `*.h`                             |                                     [uncrustify][3]                                      |
-| C#           | `*.cs`                                   |                                     [uncrustify][3]                                      |
-| C++          | `*.cpp`, `*.hpp`                         |                                     [uncrustify][3]                                      |
 | CSS          | `*.css`                                  |                                      [prettier][4]                                       |
 | Cython       | `*.pyx`, `*.pxd`, `*.pxi`                |                     [autoflake][5], [autopep8][6], [docformatter][7]                     |
-| D            | `*.d`                                    |                                     [uncrustify][3]                                      |
-| dash         | `*.dash`, `#!/usr/bin/env dash`          |                               [shellcheck][1], [shfmt][2]                                |
 | GraphQL      | `*.graphql`                              |                                      [prettier][4]                                       |
 | HTML         | `*.html`                                 |                                      [prettier][4]                                       |
-| Java         | `*.java`                                 |                                    [prettier-java][8]                                    |
-| JavaScript   | `*.js`, `#!/usr/bin/env node`            |                                   [prettier-eslint][9]                                   |
+| JavaScript   | `*.js`, `*.cjs`, `#!/usr/bin/env node`   |                                [eslint][9],[prettier][4]                                 |
 | JSON         | `*.json`                                 |                                      [prettier][4]                                       |
-| JSX          | `*.jsx`                                  |                                   [prettier-eslint][9]                                   |
+| JSX          | `*.jsx`                                  |                                [eslint][9],[prettier][4]                                 |
 | ksh          | `*.ksh`, `#!/usr/bin/env ksh`            |                               [shellcheck][1], [shfmt][2]                                |
-| Lua          | `*.lua`                                  |                                       [StyLua][10]                                       |
-| Luau         | `*.lua`                                  |                                       [StyLua][10]                                       |
 | Markdown     | `*.md`                                   |                                      [prettier][4]                                       |
 | MDX          | `*.mdx`                                  |                                      [prettier][4]                                       |
 | mksh         | `*.mksh`, `#!/usr/bin/env mksh`          |                               [shellcheck][1], [shfmt][2]                                |
-| Nim          | `*.nim`                                  |                               [nimfmt][23][nimpretty][11]                                |
-| Objective-C  | `*.m`, `*.mm`, `*.M`                     |                                     [uncrustify][3]                                      |
 | package.json | `package.json`                           |                               [prettier-package-json][12]                                |
 | pug          | `*.pug`                                  |                                [prettier/plugin-pug][13]                                 |
 | Python       | `*.py`, `*.pyi`, `#!/usr/bin/env python` | [autoflake][5], [autopep8][6], [black][14], [docformatter][7], [isort][15], [pylint][22] |
-| Ruby         | `*.rb`, `Gemfile`, `#!/usr/bin/env ruby` |                        [@prettier/plugin-ruby][16], [rubocop][17]                        |
-| Rust         | `Cargo.toml`                             |                                       [clippy][18]                                       |
 | SASS         | `*.scss`                                 |                                      [prettier][4]                                       |
 | sh           | `*.sh`, `#!/bin/sh`                      |                               [shellcheck][1], [shfmt][2]                                |
-| TSX          | `*.tsx`                                  |                                   [prettier-eslint][9]                                   |
-| TypeScript   | `*.ts`                                   |                                   [prettier-eslint][9]                                   |
+| TSX          | `*.tsx`                                  |                                [eslint][9],[prettier][4]                                 |
+| TypeScript   | `*.ts`                                   |                                [eslint][9],[prettier][4]                                 |
 | XML          | `*.xml`                                  |                                [prettier/plugin-xml][19]                                 |
 | YAML         | `*.yml`, `*.yaml`                        |                              [prettier][4], [yamllint][20]                               |
 
@@ -147,9 +131,8 @@ Examples:
                                          # in the working directory.
   $ lintball install-lintballrc -p foo   # Install default .lintballrc.json in
                                          # directory foo.
-  $ lintball install-tools --yes         # Autodetect tools for working
-                                         # directory and install them, no
-                                         # prompt.
+  $ lintball install-tools               # Autodetect tools for working
+                                         # directory and install them.
   $ lintball install-tools -p foo        # Autodetect tools for directory foo
                                          # and install them.
   $ lintball install-tools --all         # Install all tools.
@@ -179,10 +162,10 @@ An example GitHub Actions workflow for linting your project:
 name: Lint
 on:
   pull_request:
-    branches: ['*']
+    branches: ["*"]
   push:
-    branches: ['*']
-    tags: ['*']
+    branches: ["*"]
+    tags: ["*"]
 
 jobs:
   lint:
@@ -192,16 +175,16 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - uses: actions/setup-node@v2
         with:
-          node-version: '15'
+          node-version: "15"
 
       - name: Install lintball
         run: |
           npm install -g lintball
-          lintball install-tools --yes
+          lintball install-tools
 
       - name: Check for linter issues
         run: lintball check
@@ -213,12 +196,12 @@ If you have a large project with many files, you may want to limit the number of
 - name: Install lintball
   run: |
     npm install -g lintball
-    lintball install-tools --yes py js yml # Put extensions here for languages in your project
+    lintball install-tools py js yml # Put extensions here for languages in your project
 
 - name: Check for linter issues
   shell: bash
   run: |
-    set -uexo pipefail
+    set -euxo pipefail
 
     default_branch=master
     if [ "$GITHUB_REF" = "refs/heads/$default_branch" ]; then
@@ -229,17 +212,16 @@ If you have a large project with many files, you may want to limit the number of
       # A pull request.
       # Check files which have changed between the merge base and the
       # current commit.
-      commitish="$(git merge-base -a refs/remotes/origin/$GITHUB_BASE_REF $GITHUB_SHA)"
+      IFS= read -r commitish < <(git merge-base -a refs/remotes/origin/$GITHUB_BASE_REF $GITHUB_SHA)
     else
       # A push to a non-default, non-PR branch.
       # Check files which have changed between default branch and the current
       # commit.
-      commitish="$(git merge-base -a refs/remotes/origin/${default_branch} $GITHUB_SHA)"
+      IFS= read -r commitish < <(git merge-base -a refs/remotes/origin/${default_branch} $GITHUB_SHA)
     fi
 
-    status=0
-    lintball check --since "$commitish" || status=$?
-    if [ "$status" -gt 0 ]; then
+    if ! lintball check --since "$commitish"; then
+      status=$?
       echo
       echo "The above issues were found by lintball."
       echo "To detect and auto-fix issues before pushing, install lintball's git hooks."
@@ -277,7 +259,7 @@ By default, lintball will not process files matching the following globs:
 */vendor/*
 ```
 
-To add or remove items from this list, run `lintball install-lintballrc` and edit the `ignores` section in the created `.lintballrc.json` file. Patterns should match what is passed to the `find` command's `-path` argument.
+To add or remove items from this list, run `lintball install-lintballrc` and edit the `ignores` section in the created `.lintballrc.json` file. Ignore patterns are [Full Name Patterns](https://www.gnu.org/software/findutils/manual/html_node/find_html/Full-Name-Patterns.html) passed to the `find` command's `-path` argument. See also: [fnmatch](https://docs.python.org/3/library/fnmatch.html).
 
 ### Disabling specific tools
 
@@ -288,12 +270,9 @@ If you need to disable a tool, create a `.lintballrc.json` file in your project 
 Many of the tools used by lintball can be configured to suit your needs. See:
 
 - autopep8: https://pypi.org/project/autopep8/#configuration
-- clippy: https://github.com/rust-lang/rust-clippy#configuration
 - eslint: https://eslint.org/docs/user-guide/configuring
 - prettier: https://prettier.io/docs/en/configuration.html
-- rubocop: https://docs.rubocop.org/rubocop/1.8/configuration.html
 - shellcheck: https://www.mankier.com/1/shellcheck#RC_Files
-- uncrustify: https://github.com/uncrustify/uncrustify#configuring-the-program
 
 If you need to pass custom arguments to a tool (such as specifying a config file), create a `.lintballrc.json` file in your project with custom `write_args` and `check_args`. The default `write_args` and `check_args` are defined in [configs/lintballrc-defaults.json][21].
 
@@ -305,38 +284,26 @@ arch -x86_64 /usr/local/Homebrew/bin/brew install shellcheck
 shellcheck --version
 ```
 
-#### Windows
-
-Windows support for linting and fixing Python code was added via https://github.com/elijahr/lintball/pull/2. Other languages have not been tested on Windows. Continuous integration also does not test on Windows. We would love to improve this! If you use Windows and want to use lintball please do submit a pull request with any necessary changes.
-
 ## Acknowledgements
 
-lintball is a wrapper around existing tools. Many thanks to the authors of the tools used by lintball! This project (and your tidy code) stand on the shoulders of giants.
+lintball is a wrapper around existing tools. Many thanks to the authors of the tools used by lintball!
 
 ## Contributing
 
-Pull requests are welcome! lintball has a suite of unit tests, located in the `test` directory. The tests can be run locally with `npm run test`. Please ensure that your features or fixes come with unit tests.
+Pull requests are welcome! lintball has a suite of unit tests, located in the `test` directory. The tests can be run with `/scripts/run-tests-external.sh`. Please ensure that your features or fixes come with unit tests.
 
 [1]: https://www.shellcheck.net/
 [2]: https://github.com/mvdan/sh
-[3]: http://uncrustify.sourceforge.net/
 [4]: https://prettier.io/
 [5]: https://pypi.org/project/autoflake/
 [6]: https://pypi.org/project/autopep8/
 [7]: https://pypi.org/project/docformatter/
-[8]: https://github.com/jhipster/prettier-java
-[9]: https://github.com/prettier/prettier-eslint-cli
-[10]: https://github.com/JohnnyMorganz/StyLua
-[11]: https://nim-lang.org/docs/tools.html
+[9]: https://github.com/eslint/eslint
 [12]: https://github.com/cameronhunter/prettier-package-json
 [13]: https://github.com/prettier/plugin-pug
 [14]: https://github.com/psf/black
 [15]: https://pypi.org/project/isort/
-[16]: https://github.com/prettier/plugin-ruby
-[17]: https://github.com/rubocop-hq/rubocop
-[18]: https://github.com/rust-lang/rust-clippy
 [19]: https://github.com/prettier/plugin-xml
 [20]: https://yamllint.readthedocs.io/en/stable/
 [21]: https://github.com/elijahr/lintball/tree/devel/configs/lintballrc-defaults.json
 [22]: http://pylint.pycqa.org/
-[23]: https://github.com/FedericoCeratto/nimfmt

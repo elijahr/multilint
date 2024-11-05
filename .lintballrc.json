@@ -1,15 +1,12 @@
 {
+  "lintballrc_version": "2",
   "ignores": [
     "*/.git/*",
-    "*/tools/Gemfile",
     "*/node_modules/*",
     "*/package-lock.json",
-    "*/tools/python-env/*",
-    "*/tools/vendor/*",
-    "*/tools/target/*",
-    "*/lib/jwalk/*",
-    "*/lib/version_compare/*",
     "*/test/fixture/*",
-    "*/test/fixture/target/*"
+    "*/test/target/*",
+    "*/test/fixture/target/*",
+    "*/tools/asdf/*"
   ]
 }

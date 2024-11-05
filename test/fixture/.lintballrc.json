@@ -1,0 +1,7 @@
+{
+    "lintballrc_version": "2",
+    "ignores": [
+      "*/.git/*",
+      "*/a_dir/*"
+    ]
+  }
