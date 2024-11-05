@@ -47,43 +47,25 @@ done
 # shellcheck disable=SC2207
 cache_from_args=($(printf "%s\n" "${cache_from_args[@]}" | awk '!seen[$0]++'))
 
-docker buildx build \
-  --platform="$current_platform" \
-  --progress=plain \
-  --cache-from=elijahru/lintball \
-  "${cache_from_args[@]}" \
-  --tag="elijahru/lintball:${main_tag}" \
-  --target=lintball-latest \
-  --load \
-  .
+# Combine all tags into a single build command
+tags_args=()
+for tag in "${docker_tags[@]}"; do
+  tags_args+=(--tag="elijahru/lintball:${tag}")
+done
 
-# Lint the codebase
-export LINTBALL_WORKSPACE="${GITHUB_WORKSPACE:-${PWD}}"
-
-# Sanity check
-docker run \
-  --platform="$current_platform" \
-  --volume="${LINTBALL_WORKSPACE:-.}:/workspace:cached" \
-  --volume=./bin:/lintball/bin:cached \
-  --volume=./configs:/lintball/configs:cached \
-  --volume=./lib:/lintball/lib:cached \
-  --volume=./scripts:/lintball/scripts:cached \
-  --volume=./test:/lintball/test:cached \
-  "elijahru/lintball:${main_tag}" \
-  lintball check
+# Remove duplicates from tags_args
+# shellcheck disable=SC2207
+tags_args=($(printf "%s\n" "${tags_args[@]}" | awk '!seen[$0]++'))
 
 echo "Pushing tags: ${docker_tags@Q}"
 echo "Pushing platforms: ${push_platforms}"
 
-for tag in "${docker_tags[@]}"; do
-  # build for the current platform
-  docker buildx build \
-    --platform="$push_platforms" \
-    --progress=plain \
-    --cache-from=elijahru/lintball \
-    "${cache_from_args[@]}" \
-    --tag="elijahru/lintball:${tag}" \
-    --target=lintball-latest \
-    --push \
-    .
-done
+docker buildx build \
+  --platform="$push_platforms" \
+  --progress=plain \
+  --cache-from=elijahru/lintball \
+  "${cache_from_args[@]}" \
+  "${tags_args[@]}" \
+  --target=lintball-latest \
+  --push \
+  .

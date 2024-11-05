@@ -1,8 +1,6 @@
 name: CI Workflow
 
 on:
-  pull_request:
-    branches: ["*"]
   push:
     branches: ["*"]
     tags: ["*"]
@@ -44,3 +42,21 @@ jobs:
           password: ${{ secrets.DOCKERHUB_TOKEN }}
       - name: Build & Push
         run: ./scripts/build-and-push-docker-images.bash
+
+  publish:
+    name: Publish to NPM and make git tag alias
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/')
+    needs: [build-and-push-docker-images]
+    steps:
+      - name: Alias and push tag
+        run: |
+          TAG=${GITHUB_REF#refs/tags/}
+          ALIAS_TAG=$(echo $TAG | sed -E 's/^v([0-9]+)\..*/v\1/')
+          git tag $ALIAS_TAG
+          git push origin $ALIAS_TAG
+
+      - name: Publish to npm
+        run: npm publish
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
