@@ -69,7 +69,7 @@ else
     if [[ ${GITHUB_REF} == "refs/heads/${default_branch}" ]]; then
       # A push to the default branch.
       # Check files which were changed in the most recent commit.
-      committish="HEAD^1"
+      committish="HEAD~1"
     elif [[ -n ${GITHUB_BASE_REF:-} ]]; then
       # A pull request.
       # Check files which have changed between the merge base and the
@@ -94,7 +94,7 @@ else
     echo "For instance, if you want to check files changed in the most recent commit:" >&2
     echo "  uses: elijahr/lintball" >&2
     echo "  with:" >&2
-    echo "    committish: HEAD^1" >&2
+    echo "    committish: HEAD~1" >&2
     echo >&2
     exit 1
   fi

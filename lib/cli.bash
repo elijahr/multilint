@@ -2,6 +2,30 @@
 
 # shellcheck disable=SC2230
 
+validate_commit() {
+  local commit="$1"
+  if ! git rev-parse "${commit}" 1>/dev/null 2>/dev/null; then
+    echo "Invalid commit: ${commit}" >&2
+    git rev-parse "${commit}" || true
+    return 1
+  fi
+  return 0
+}
+
+fetch_and_validate_commit() {
+  local commit="$1"
+  if git remote | grep -q "^origin$"; then
+    echo "Fetching from remote 'origin'..."
+    git fetch origin --unshallow || git fetch origin --depth=1000 || true
+  else
+    for remote in $(git remote); do
+      echo "Fetching from remote '${remote}'..."
+      git fetch "${remote}" --unshallow || git fetch "${remote}" --depth=1000 || true
+    done
+  fi
+  validate_commit "${commit}" || return 1
+}
+
 cli_entrypoint() {
   local status bash_major_version
   # shellcheck disable=SC2001
@@ -92,10 +116,8 @@ cli_entrypoint() {
               git rev-parse --is-inside-work-tree || true
               return 1
             fi
-            if ! git rev-parse "${commit}" 1>/dev/null 2>/dev/null; then
-              echo "Invalid commit: ${commit}" >&2
-              git rev-parse "${commit}" || true
-              return 1
+            if ! validate_commit "${commit}"; then
+              fetch_and_validate_commit "${commit}" || return 1
             fi
             readarray -t -O"${#paths[@]}" paths < <(get_paths_changed_since_commit "${commit}")
             ;;
@@ -674,7 +696,7 @@ Subcommands:
     -s, --since <commit>    Check only files changed since <commit>. This
                             includes both committed and uncommitted changes.
                             <commit> may be a commit hash or a committish, such
-                            as HEAD^1 or master.
+                            as HEAD~1 or master.
     -j, --jobs <n>          The number of parallel jobs to run.
                               Default: the number of available CPUs.
   fix [paths …]             Recursively fix issues.
@@ -682,7 +704,7 @@ Subcommands:
     -s, --since <commit>    Fix only files changed since <commit>. This
                             includes both committed and uncommitted changes.
                             <commit> may be a commit hash or a committish, such
-                            as HEAD^1 or master.
+                            as HEAD~1 or master.
     -j, --jobs <n>          The number of parallel jobs to run.
                               Default: the number of available CPUs.
   install-githooks          Install lintball githooks in a git repository.
@@ -714,7 +736,7 @@ Subcommands:
 
 Examples:
   \$ lintball check                       # Check working directory for issues.
-  \$ lintball check --since HEAD^1        # Check working directory for issues
+  \$ lintball check --since HEAD~1        # Check working directory for issues
                                          # in all files changes since the commit
                                          # before last.
   \$ lintball check foo                   # Check the foo directory for issues.

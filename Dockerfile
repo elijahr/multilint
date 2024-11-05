@@ -84,7 +84,7 @@ COPY LICENSE "${LINTBALL_DIR}/LICENSE"
 COPY package-lock.json "${LINTBALL_DIR}/package-lock.json"
 COPY package.json "${LINTBALL_DIR}/package.json"
 COPY README.md "${LINTBALL_DIR}/README.md"
-COPY scripts "${LINTBALL_DIR}/scripts"
+COPY scripts/cleanup-docker-layer.sh "${LINTBALL_DIR}/scripts/cleanup-docker-layer.sh"
 COPY tools/.eslintrc.cjs "${LINTBALL_DIR}/tools/.eslintrc.cjs"
 COPY tools/.prettierrc.json "${LINTBALL_DIR}/tools/.prettierrc.json"
 COPY tools/package-lock.json "${LINTBALL_DIR}/tools/package-lock.json"
@@ -111,6 +111,8 @@ RUN echo 'source "${LINTBALL_DIR}/lib/env.bash"' >> ~/.bashrc && \
   --allow-remove-essential --allow-change-held-packages \
   jq git procps && \
   IS_DOCKER_BUILD=1 /lintball/scripts/cleanup-docker-layer.sh
+
+COPY scripts "${LINTBALL_DIR}/scripts"
 
 ENTRYPOINT ["/lintball/scripts/docker-entrypoint.bash"]
 WORKDIR "/workspace"
