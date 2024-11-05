@@ -1,5 +1,4 @@
-![Test](https://github.com/elijahr/lintball/workflows/Test/badge.svg?branch=devel)
-![Platforms](https://img.shields.io/badge/platform-linux%20%7C%20macos%20-lightgrey)
+[![CI Workflow](https://github.com/elijahr/lintball/actions/workflows/build.yml/badge.svg)](https://github.com/elijahr/lintball/actions/workflows/build.yml)
 
 ```
 █   █ █▄ █ ▀█▀ ██▄ ▄▀▄ █   █
@@ -42,19 +41,21 @@ Most software projects consist of more than one programming language. There's so
 
 ## Installation
 
+lintball runs in a docker container as a git pre-commit hook. To install the githook:
+
 ```sh
-npm install -g lintball
-
-cd my-project
-
-# Auto-detect formatters for my-project, install them.
-lintball install-tools
-
-# Install git pre-commit hook to detect and auto-fix issues in my-project.
-lintball install-githooks
+docker run --volume "${PWD}:/workspace" elijahru/lintball lintball install-githooks
 ```
 
 ## Usage
+
+If you need functionality besides the pre-commit hook, you may run via:
+
+```shell
+docker run --volume "${PWD}:/workspace" elijahru/lintball <lintball command>
+```
+
+Where <lintball command> is one of:
 
 ```
 Usage:
@@ -140,18 +141,6 @@ Examples:
                                          # JavaScript, & YAML.
 ```
 
-## Updating to latest lintball
-
-```sh
-npm install --upgrade -g lintball
-
-cd my-project
-
-# Auto-detect formatters for my-project, install them.
-# Must be re-run after updating.
-lintball install-tools
-```
-
 ## Continuous Integration
 
 An example GitHub Actions workflow for linting your project:
@@ -175,60 +164,10 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
-      - uses: actions/setup-node@v2
-        with:
-          node-version: "15"
-
-      - name: Install lintball
-        run: |
-          npm install -g lintball
-          lintball install-tools
-
-      - name: Check for linter issues
-        run: lintball check
-```
-
-If you have a large project with many files, you may want to limit the number of files checked using the `--since` option. You can also tell lintball which tools to install for a faster run. Assuming your repo's default branch is named `master`:
-
-```yaml
-- name: Install lintball
-  run: |
-    npm install -g lintball
-    lintball install-tools py js yml # Put extensions here for languages in your project
-
-- name: Check for linter issues
-  shell: bash
-  run: |
-    set -euxo pipefail
-
-    default_branch=master
-    if [ "$GITHUB_REF" = "refs/heads/$default_branch" ]; then
-      # A push to the default branch.
-      # Check files which were changed in the most recent commit.
-      commitish="HEAD~1"
-    elif [ -n "$GITHUB_BASE_REF" ]; then
-      # A pull request.
-      # Check files which have changed between the merge base and the
-      # current commit.
-      IFS= read -r commitish < <(git merge-base -a refs/remotes/origin/$GITHUB_BASE_REF $GITHUB_SHA)
-    else
-      # A push to a non-default, non-PR branch.
-      # Check files which have changed between default branch and the current
-      # commit.
-      IFS= read -r commitish < <(git merge-base -a refs/remotes/origin/${default_branch} $GITHUB_SHA)
-    fi
-
-    if ! lintball check --since "$commitish"; then
-      status=$?
-      echo
-      echo "The above issues were found by lintball."
-      echo "To detect and auto-fix issues before pushing, install lintball's git hooks."
-      echo "See https://github.com/elijahr/lintball"
-      echo
-      exit $status
-    fi
+      - name: Run lintball
+        uses: elijahr/lintball@v2
 ```
 
 ## Configuration
@@ -275,14 +214,6 @@ Many of the tools used by lintball can be configured to suit your needs. See:
 - shellcheck: https://www.mankier.com/1/shellcheck#RC_Files
 
 If you need to pass custom arguments to a tool (such as specifying a config file), create a `.lintballrc.json` file in your project with custom `write_args` and `check_args`. The default `write_args` and `check_args` are defined in [configs/lintballrc-defaults.json][21].
-
-### Platform support
-
-```shell
-curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh | arch -x86_64 /bin/bash
-arch -x86_64 /usr/local/Homebrew/bin/brew install shellcheck
-shellcheck --version
-```
 
 ## Acknowledgements
 
