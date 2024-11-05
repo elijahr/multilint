@@ -44,7 +44,7 @@ Most software projects consist of more than one programming language. There's so
 lintball runs in a docker container as a git pre-commit hook. To install the githook:
 
 ```sh
-docker run --volume "${PWD}:/workspace" elijahru/lintball lintball install-githooks
+docker run --volume ".:/workspace" elijahru/lintball lintball install-githooks
 ```
 
 This will run the linters and formatters automatically when you make a git commit.
@@ -90,10 +90,10 @@ jobs:
 If you need functionality besides the pre-commit hook, you may run via:
 
 ```shell
-docker run --volume "${PWD}:/workspace" elijahru/lintball <lintball command>
+docker run --volume ".:/workspace" elijahru/lintball <lintball command>
 ```
 
-Where <lintball command> is one of:
+Where &lt;lintball command&gt; is one of:
 
 ```
 Usage:
@@ -128,7 +128,7 @@ Subcommands:
     -j, --jobs <n>          The number of parallel jobs to run.
                               Default: the number of available CPUs.
   install-githooks          Install lintball githooks in a git repository.
-    -p, --path <path>       Git repo path.
+    -p, --path <path>       Path to git project to install pre-commit hook to.
                               Default: working directory.
     -y, --yes               Skip prompt & replace repo's githooks.
     -n, --no                Skip prompt & exit 1 if repo already has githooks.

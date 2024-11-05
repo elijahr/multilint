@@ -337,7 +337,7 @@ process_file() {
 }
 
 subcommand_install_githooks() {
-  local path answer git_dir hooks_path hook dest status
+  local path answer current_hooks_path hooks_answer hook dest
   path="${1#path=}"
   answer="${2#answer=}"
 
@@ -349,38 +349,35 @@ subcommand_install_githooks() {
     return 1
   fi
 
-  IFS= read -r hooks_path < <(git --git-dir="${git_dir}" config --local core.hooksPath) || true
-  if [[ -z ${hooks_path} ]]; then
-    hooks_path="${path}/.githooks"
-  fi
-
-  if [[ ! -d ${hooks_path} ]]; then
-    hooks_basename=$(basename "${hooks_path}")
-    if [[ -d "${path}/${hooks_basename}" ]]; then
-      hooks_path="${path}/${hooks_basename}"
-    else
-      echo "Error: Hooks path ${hooks_path} does not exist and ${path}/${hooks_basename} is also not a valid directory." >&2
-      echo "If this is being run in docker, make sure your project is mounted as a volume correctly." >&2
+  git_parent_dir=$(dirname "${git_dir}")
+  hooks_answer="${answer}"
+  IFS= read -r current_hooks_path < <(git --git-dir="${git_dir}" config --local core.hooksPath) || true
+  if [[ -n ${current_hooks_path} ]] && [[ -z ${hooks_answer} ]]; then
+    if ! read -rp "git config --local core.hooksPath is already configured as ${current_hooks_path}. Replace? [y/N] " hooks_answer; then
+      echo >&2
+      echo "Cancelled because git config --local core.hooksPath is already configured and --yes not passed." >&2
+      echo >&2
       return 1
     fi
   fi
-
-  if command -v realpath >/dev/null 2>&1; then
-    if [[ ${hooks_path} == /* ]]; then
-      hooks_path=$(realpath --relative-to="${path}" "${hooks_path}")
-    fi
+  if [[ ! ${hooks_answer} =~ ^[yY] ]] && [[ -n ${current_hooks_path} ]]; then
+    echo >&2
+    echo "Cancelled because --yes not passed and [Y] not selected." >&2
+    echo >&2
+    return 1
   fi
 
   set +f
   for hook in "${LINTBALL_DIR}/githooks/"*; do
-    dest="${hooks_path}/$(basename "${hook}")"
-    confirm_copy "src=${hook}" "dest=${dest}" "answer=${answer}"
+    dest="${git_parent_dir}/.githooks/$(basename "${hook}")"
+    confirm_copy "src=${hook}" "dest=${dest}" "answer=${answer}" || return 1
   done
   set -f
 
-  git --git-dir="${git_dir}" config --local core.hooksPath "${hooks_path}"
+  git --git-dir="${git_dir}" config --local core.hooksPath ".githooks"
+
   echo
-  echo "Set git hooks path → ${hooks_path}"
+  echo "Set git hooks path → .githooks"
   echo
   return 0
 }
@@ -392,7 +389,7 @@ subcommand_install_lintballrc() {
   confirm_copy \
     "src=${LINTBALL_DIR}/configs/lintballrc-ignores.json" \
     "dest=${path}/.lintballrc.json" \
-    "answer=${answer}"
+    "answer=${answer}" || return 1
 }
 
 subcommand_install_tools() {
@@ -709,7 +706,7 @@ Subcommands:
     -j, --jobs <n>          The number of parallel jobs to run.
                               Default: the number of available CPUs.
   install-githooks          Install lintball githooks in a git repository.
-    -p, --path <path>       Git repo path.
+    -p, --path <path>       Path to git project to install pre-commit hook to.
                               Default: working directory.
     -y, --yes               Skip prompt & replace repo's githooks.
     -n, --no                Skip prompt & exit 1 if repo already has githooks.
