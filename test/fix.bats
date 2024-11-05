@@ -532,11 +532,11 @@ EOF
   assert_success
   expected="$(
     cat <<EOF
-interface Interface {
+export interface Interface {
   foo: string;
   bar: string;
 }
-const message = "Hello World";
+const message: string = "Hello World";
 console.log(message);
 EOF
   )"

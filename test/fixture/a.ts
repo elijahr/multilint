@@ -1,4 +1,4 @@
-     interface Interface {
+export     interface Interface {
   foo:      String ;
   bar:              String;
 }
