@@ -49,6 +49,14 @@ teardown() {
 }
 
 @test 'lintball fix --since HEAD~1 (not a valid git commit)' {
+  safe_git add .
+  safe_git reset a.html a.xml a.yml
+  safe_git commit -m "commit 1"
+  safe_git add a.html
+  safe_git commit -m "commit 2"
+  safe_git rm a.md
+  safe_git commit -m "commit 3"
+  safe_git add a.yml
   run lintball fix --since deadbeef # 3>&-
   assert_failure
   assert_line "Invalid commit: deadbeef"
@@ -309,7 +317,7 @@ import * as ReactDOM from "react-dom/client";
 
 import React from "react";
 
-ReactDOM.render(<h1>Hello, world!</h1>, document.getElementById("root"));
+ReactDOM.createRoot(<h1>Hello, world!</h1>, document.getElementById("root"));
 EOF
   )"
   assert_equal "$(cat "a.jsx")" "${expected}"

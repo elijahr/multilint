@@ -8,7 +8,7 @@ import React  from 'react';
 
 
 
-ReactDOM.render(
+ReactDOM.createRoot(
                 <h1>Hello, world!</h1>,
   document.getElementById('root')
           );

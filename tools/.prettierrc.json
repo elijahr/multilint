@@ -1,5 +1,6 @@
 {
   "printWidth": 80,
   "singleQuote": false,
-  "trailingComma": "es5"
+  "trailingComma": "es5",
+  "plugins": ["@prettier/plugin-pug", "@prettier/plugin-xml"]
 }

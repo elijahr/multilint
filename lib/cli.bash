@@ -93,11 +93,10 @@ cli_entrypoint() {
               return 1
             fi
             if ! git rev-parse "${commit}" 1>/dev/null 2>/dev/null; then
-              if git rev-parse --is-shallow-repository 1>/dev/null 2>/dev/null; then
+              if [[ "$(git rev-parse --is-shallow-repository)" == "true" ]]; then
                 echo "Shallow repository, cannot use --since with a commit hash" >&2
                 echo "If this is being run from the lintball GitHub Action, set fetch-depth: 0" >&2
                 echo "in the checkout step." >&2
-                git rev-parse --is-shallow-repository || true
                 return 1
               else
                 echo "Invalid commit: ${commit}" >&2

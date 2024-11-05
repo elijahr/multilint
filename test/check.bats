@@ -65,6 +65,14 @@ teardown() {
 }
 
 @test 'lintball check --since HEAD~1 (not a valid git commit)' {
+  safe_git add .
+  safe_git reset a.html a.xml a.yml
+  safe_git commit -m "commit 1"
+  safe_git add a.html
+  safe_git commit -m "commit 2"
+  safe_git rm a.md
+  safe_git commit -m "commit 3"
+  safe_git add a.yml
   run lintball check --since deadbeef # 3>&-
   assert_failure
   assert_line "Invalid commit: deadbeef"
