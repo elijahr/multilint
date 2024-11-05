@@ -89,10 +89,12 @@ cli_entrypoint() {
             shift
             if ! git rev-parse --is-inside-work-tree 1>/dev/null 2>/dev/null; then
               echo "Not in a git repository, cannot use --since" >&2
+              git rev-parse --is-inside-work-tree || true
               return 1
             fi
             if ! git rev-parse "${commit}" 1>/dev/null 2>/dev/null; then
               echo "Invalid commit: ${commit}" >&2
+              git rev-parse "${commit}" || true
               return 1
             fi
             readarray -t -O"${#paths[@]}" paths < <(get_paths_changed_since_commit "${commit}")
