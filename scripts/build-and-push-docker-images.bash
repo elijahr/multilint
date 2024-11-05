@@ -9,7 +9,7 @@
 # If run locally or for a feature branch, it will only build for the current
 # platform.
 
-set -uexo pipefail
+set -ue
 
 cd "$(dirname "${BASH_SOURCE[0]}")/.."
 

@@ -4,7 +4,7 @@
 # It is used internally by the elijahr/lintball action and runs lintball
 # in a Docker container.
 
-set -euxo pipefail
+set -eu
 
 IFS= read -r check_all_files < <(printenv 'INPUT_CHECK_ALL_FILES')
 IFS= read -r committish < <(printenv 'INPUT_COMMITTISH')
@@ -103,29 +103,9 @@ fi
 
 "${LINTBALL_DIR}/scripts/build-local-docker-image.sh"
 
-echo xxx
-env
-echo yyy
-find "${workspace}"
-echo zzz
-docker run \
-  --mount type=bind,source="${workspace}",target=/workspace,readonly \
-  lintball:local /bin/sh -c 'find /workspace'
-echo aaa
-docker run \
-  --mount type=bind,source="${workspace}",target=/workspace,readonly \
-  --mount type=bind,source="${workspace}/.git",target=/workspace/.git,readonly \
-  lintball:local /bin/sh -c 'find /workspace'
-echo bbb
-docker run \
-  --mount type=bind,source="${workspace}",target=/workspace,readonly \
-  --mount type=bind,source="${workspace}/.git",target=/workspace/.git,readonly \
-  lintball:local /bin/sh -c 'command -v git && git status'
-
 status=0
 docker run \
   --mount type=bind,source="${workspace}",target=/workspace,readonly \
-  --mount type=bind,source="${workspace}/.git",target=/workspace/.git,readonly \
   lintball:local \
   lintball check "${lintball_check_args[@]}" || status=$?
 

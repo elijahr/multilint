@@ -1,6 +1,6 @@
 #!/bin/bash
 
-set -ueo pipefail
+set -ue
 
 PATH="/lintball/bin:$PATH"
 export PATH
