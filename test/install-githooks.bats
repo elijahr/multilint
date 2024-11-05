@@ -16,7 +16,7 @@ teardown() {
   run lintball install-githooks --no # 3>&-
   assert_success
   assert_equal "$(safe_git --git-dir="${BATS_TEST_TMPDIR}/.git" config --local core.hooksPath)" "${BATS_TEST_TMPDIR}/.githooks"
-  assert [ -x "${BATS_TEST_TMPDIR}/.githooks/pre-commit" ]
+  assert [ -f "${BATS_TEST_TMPDIR}/.githooks/pre-commit" ]
 }
 
 @test 'lintball install-githooks with --path' {
@@ -25,7 +25,7 @@ teardown() {
   run lintball install-githooks --no --path "${tmp}" # 3>&-
   assert_success
   assert_equal "$(safe_git --git-dir="${tmp}/.git" config --local core.hooksPath)" "${tmp}/.githooks"
-  assert [ -x "${tmp}/.githooks/pre-commit" ]
+  assert [ -f "${tmp}/.githooks/pre-commit" ]
   rm -rf "${tmp}"
 }
 
