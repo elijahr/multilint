@@ -21,6 +21,11 @@ inputs:
 runs:
   using: "composite"
   steps:
+    - run: |
+        if git rev-parse --is-shallow-repository; then
+          git fetch origin ${GITHUB_REF_NAME} --unshallow || git fetch origin ${GITHUB_REF_NAME} --depth=10
+        fi
+      shell: bash
     - run: ./scripts/action.sh
       shell: bash
       env:

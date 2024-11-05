@@ -2,30 +2,6 @@
 
 # shellcheck disable=SC2230
 
-validate_commit() {
-  local commit="$1"
-  if ! git rev-parse "${commit}" 1>/dev/null 2>/dev/null; then
-    echo "Invalid commit: ${commit}" >&2
-    git rev-parse "${commit}" || true
-    return 1
-  fi
-  return 0
-}
-
-fetch_and_validate_commit() {
-  local commit="$1"
-  if git remote | grep -q "^origin$"; then
-    echo "Fetching from remote 'origin'..."
-    git fetch origin --unshallow || git fetch origin --depth=1000 || true
-  else
-    for remote in $(git remote); do
-      echo "Fetching from remote '${remote}'..."
-      git fetch "${remote}" --unshallow || git fetch "${remote}" --depth=1000 || true
-    done
-  fi
-  validate_commit "${commit}" || return 1
-}
-
 cli_entrypoint() {
   local status bash_major_version
   # shellcheck disable=SC2001
@@ -116,8 +92,18 @@ cli_entrypoint() {
               git rev-parse --is-inside-work-tree || true
               return 1
             fi
-            if ! validate_commit "${commit}"; then
-              fetch_and_validate_commit "${commit}" || return 1
+            if ! git rev-parse "${commit}" 1>/dev/null 2>/dev/null; then
+              if git rev-parse --is-shallow-repository 1>/dev/null 2>/dev/null; then
+                echo "Shallow repository, cannot use --since with a commit hash" >&2
+                echo "If this is being run from the lintball GitHub Action, set fetch-depth: 0" >&2
+                echo "in the checkout step." >&2
+                git rev-parse --is-shallow-repository || true
+                return 1
+              else
+                echo "Invalid commit: ${commit}" >&2
+                git rev-parse "${commit}" || true
+                return 1
+              fi
             fi
             readarray -t -O"${#paths[@]}" paths < <(get_paths_changed_since_commit "${commit}")
             ;;
