@@ -354,6 +354,23 @@ subcommand_install_githooks() {
     hooks_path="${path}/.githooks"
   fi
 
+  if [[ ! -d ${hooks_path} ]]; then
+    hooks_basename=$(basename "${hooks_path}")
+    if [[ -d "${path}/${hooks_basename}" ]]; then
+      hooks_path="${path}/${hooks_basename}"
+    else
+      echo "Error: Hooks path ${hooks_path} does not exist and ${path}/${hooks_basename} is also not a valid directory." >&2
+      echo "If this is being run in docker, make sure your project is mounted as a volume correctly." >&2
+      return 1
+    fi
+  fi
+
+  if command -v realpath >/dev/null 2>&1; then
+    if [[ ${hooks_path} == /* ]]; then
+      hooks_path=$(realpath --relative-to="${path}" "${hooks_path}")
+    fi
+  fi
+
   set +f
   for hook in "${LINTBALL_DIR}/githooks/"*; do
     dest="${hooks_path}/$(basename "${hook}")"
