@@ -6,20 +6,15 @@ LINTBALL_DIR=$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)
 
 cd "${LINTBALL_DIR}"
 
-if [[ -n $(command -v jq) ]]; then
-  IFS= read -r lintball_version < <(jq -r .version "package.json")
-elif [[ -n $(command -v npm) ]]; then
-  # shellcheck disable=SC2016
-  lintball_version=$(npm -s run env echo '$npm_package_version')
-else
-  echo >&2
-  echo "Could not find jq or npm. Please install one of them." >&2
-  exit 1
-fi
+source ./scripts/docker-tags.bash
 
-IFS= read -r lintball_major_version < <(echo "${lintball_version}" | awk -F '.' '{print $1}')
+# build for the current platform with cache from all tags
+cache_from_args=()
+for tag in "${docker_tags[@]}"; do
+  cache_from_args+=(--cache-from="elijahru/lintball:${tag}")
+done
 
 docker build \
   --tag lintball:local \
-  --cache-from elijahru/lintball:v"${lintball_major_version}" \
+  "${cache_from_args[@]}" \
   --file "${LINTBALL_DIR}/Dockerfile" "${LINTBALL_DIR}"
