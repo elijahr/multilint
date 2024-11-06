@@ -21,4 +21,4 @@ cache_from_args=($(printf "%s\n" "${cache_from_args[@]}" | awk '!seen[$0]++'))
 docker build \
   --tag lintball:local \
   "${cache_from_args[@]}" \
-  --file "${LINTBALL_DIR}/Dockerfile" "${LINTBALL_DIR}"
+  --file "${LINTBALL_DIR}/Dockerfile.slim" "${LINTBALL_DIR}"

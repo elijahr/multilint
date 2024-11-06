@@ -66,6 +66,6 @@ docker buildx build \
   --cache-from=elijahru/lintball \
   "${cache_from_args[@]}" \
   "${tags_args[@]}" \
-  --target=lintball-latest \
+  --file=Dockerfile.slim \
   --push \
   .

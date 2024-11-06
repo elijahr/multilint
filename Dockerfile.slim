@@ -1,0 +1,46 @@
+# syntax=docker/dockerfile:1
+FROM nikolaik/python-nodejs:python3.13-nodejs22-slim
+RUN apt update && apt install -y git jq procps \
+  && apt clean \
+  && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* /usr/share/doc/* /usr/share/man/* /usr/share/locale/* \
+  && find /var/log -type f -exec truncate -s 0 {} \; \
+  && find /var/log -type f -exec rm -rf {} \; \
+  && bash -c '\
+  case $(uname -m) in \
+  x86_64) \
+  curl -L -o /usr/local/bin/shfmt https://github.com/mvdan/sh/releases/download/v3.10.0/shfmt_v3.10.0_linux_amd64 & \
+  curl -L -o /tmp/shellcheck.tar.xz https://github.com/koalaman/shellcheck/releases/download/v0.10.0/shellcheck-v0.10.0.linux.x86_64.tar.xz && \
+  wait \
+  ;; \
+  aarch64) \
+  curl -L -o /usr/local/bin/shfmt https://github.com/mvdan/sh/releases/download/v3.10.0/shfmt_v3.10.0_linux_arm64 & \
+  curl -L -o /tmp/shellcheck.tar.xz https://github.com/koalaman/shellcheck/releases/download/v0.10.0/shellcheck-v0.10.0.linux.aarch64.tar.xz && \
+  wait \
+  ;; \
+  *) \
+  echo "Unsupported architecture: $(uname -m)" && \
+  exit 1 \
+  ;; \
+  esac && \
+  chmod +x /usr/local/bin/shfmt && \
+  tar -xJf /tmp/shellcheck.tar.xz -C /tmp && \
+  mv /tmp/shellcheck-v0.10.0/shellcheck /usr/local/bin/shellcheck && \
+  chmod +x /usr/local/bin/shellcheck && \
+  rm -rf /tmp/shellcheck.tar.xz /tmp/shellcheck-v0.10.0'
+COPY ./lib/env.bash /lintball/lib/env.bash
+COPY ./lib/install.bash /lintball/lib/install.bash
+COPY ./lib/installers /lintball/lib/installers
+COPY ./tools /lintball/tools
+ENV LINTBALL_DIR="/lintball" \
+  USE_ASDF="false"
+RUN bash -c "\
+  source ${LINTBALL_DIR}/lib/env.bash && \
+  source ${LINTBALL_DIR}/lib/install.bash && \
+  install_nodejs && \
+  install_python && \
+  install_python" && \
+  rm -rf /root/.cache /root/.npm /root/.asdf /root/.pyenv /root/.local /root/.config /root/.npmrc /root/.yarnrc /root/.yarn /root/.wget-hsts /root/.wgetrc /root/.gnupg /root/.ssh /root/.bash_history /root/.zsh_history /root/.python_history
+COPY . /lintball
+ENTRYPOINT ["/lintball/scripts/docker-entrypoint.bash"]
+WORKDIR "/workspace"
+CMD ["/bin/sh"]
