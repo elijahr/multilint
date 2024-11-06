@@ -89,7 +89,7 @@ jobs:
         with:
           fetch-depth: 0 # This is necessary for linting only recent changes
       - name: Run lintball
-        uses: elijahr/lintball@v2
+        uses: elijahr/run-lintball@v2
 ```
 
 ## Additional Usage
