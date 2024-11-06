@@ -24,7 +24,7 @@
     "bats-support": "^0.3.0"
   },
   "scripts": {
-    "test": "bats ../test --timing",
+    "test": "bats ../test --timing --jobs 4",
     "prettier": "cd \"$npm_config_path\" && npx prettier",
     "eslint": "cd \"$npm_config_path\" && npx eslint"
   }

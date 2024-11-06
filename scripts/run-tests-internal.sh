@@ -11,6 +11,8 @@ if [[ $USE_ASDF == "true" ]]; then
   source "${LINTBALL_DIR}"/tools/asdf/asdf.sh
 fi
 
+apt update && apt install -y parallel
+
 cd "${LINTBALL_DIR}"/tools
 
 if [[ $USE_ASDF == "true" ]]; then
@@ -23,5 +25,11 @@ npm cache clean --force
 if [[ $USE_ASDF == "true" ]]; then
   asdf reshim
 fi
+
+echo
+echo "Note: test output may appear frozen due to parallelism via the bats --jobs parameter."
+echo "It is not frozen."
+echo
+echo "Running tests..."
 
 exec npm run test -- "$@"
