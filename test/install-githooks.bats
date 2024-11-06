@@ -19,6 +19,7 @@ teardown() {
   assert_line "Set git hooks path → .githooks"
   assert_equal "$(safe_git --git-dir="${BATS_TEST_TMPDIR}/.git" config --local core.hooksPath)" ".githooks"
   assert [ -f "${BATS_TEST_TMPDIR}/.githooks/pre-commit" ]
+  assert [ -x "${BATS_TEST_TMPDIR}/.githooks/pre-commit" ]
   assert [ -f "${BATS_TEST_TMPDIR}/.lintball-version" ]
   lintball_version=$(cat "${BATS_TEST_TMPDIR}/.lintball-version")
   expected_lintball_version=$(jq --raw-output ".version" <"${LINTBALL_DIR}/package.json")
@@ -34,6 +35,7 @@ teardown() {
   assert_line "Set git hooks path → .githooks"
   assert_equal "$(safe_git --git-dir="${tmp}/.git" config --local core.hooksPath)" ".githooks"
   assert [ -f "${tmp}/.githooks/pre-commit" ]
+  assert [ -x "${tmp}/.githooks/pre-commit" ]
   assert [ -f "${tmp}/.lintball-version" ]
   lintball_version=$(cat "${tmp}/.lintball-version")
   expected_lintball_version=$(jq --raw-output ".version" <"${LINTBALL_DIR}/package.json")
