@@ -37,7 +37,6 @@ RUN bash -c "\
   source ${LINTBALL_DIR}/lib/env.bash && \
   source ${LINTBALL_DIR}/lib/install.bash && \
   install_nodejs && \
-  install_python && \
   install_python" && \
   rm -rf /root/.cache /root/.npm /root/.asdf /root/.pyenv /root/.local /root/.config /root/.npmrc /root/.yarnrc /root/.yarn /root/.wget-hsts /root/.wgetrc /root/.gnupg /root/.ssh /root/.bash_history /root/.zsh_history /root/.python_history
 COPY . /lintball
