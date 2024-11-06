@@ -4,7 +4,7 @@
   },
   "name": "lintball",
   "description": "A wrapper script around linters (static code analysis tools) and code formatters (prettier, black, etc).",
-  "version": "2.0.13",
+  "version": "2.0.14",
   "directories": {
     "lib": "lib",
     "test": "test",
