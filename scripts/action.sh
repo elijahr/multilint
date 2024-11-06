@@ -107,7 +107,7 @@ if [[ ${rebuild} == "true" ]]; then
   lintball_image="lintball:local"
 else
   lintball_version=$(npm pkg get version --parseable --prefix "$LINTBALL_DIR" | tr -d '"')
-  lintball_image="elijahru/lintball:${lintball_version}"
+  lintball_image="elijahru/lintball:v${lintball_version}"
 fi
 
 status=0
