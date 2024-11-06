@@ -14,6 +14,8 @@ jobs:
         uses: actions/checkout@v4
       - name: Run lintball
         uses: ./
+        with:
+          rebuild: true
 
   test:
     name: Test

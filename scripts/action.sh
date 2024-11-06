@@ -10,6 +10,7 @@ IFS= read -r check_all_files < <(printenv 'INPUT_CHECK_ALL_FILES')
 IFS= read -r committish < <(printenv 'INPUT_COMMITTISH')
 IFS= read -r default_branch < <(printenv 'INPUT_DEFAULT_BRANCH')
 IFS= read -r workspace < <(printenv 'INPUT_WORKSPACE')
+IFS= read -r rebuild < <(printenv 'INPUT_REBUILD')
 
 if [[ -z ${workspace} ]]; then
   workspace="${GITHUB_WORKSPACE}"
@@ -101,12 +102,18 @@ else
   lintball_check_args+=("--since" "${committish}")
 fi
 
-"${LINTBALL_DIR}/scripts/build-local-docker-image.sh"
+if [[ ${rebuild} == "true" ]]; then
+  "${LINTBALL_DIR}/scripts/build-local-docker-image.sh"
+  lintball_image="lintball:local"
+else
+  lintball_version=$(npm pkg get version --parseable --prefix "$LINTBALL_DIR" | tr -d '"')
+  lintball_image="elijahru/lintball:${lintball_version}"
+fi
 
 status=0
 docker run \
   --volume "${workspace}:/workspace" \
-  lintball:local \
+  "${lintball_image}" \
   lintball check "${lintball_check_args[@]}" || status=$?
 
 if [[ $status -ne 0 ]]; then

@@ -21,6 +21,10 @@ inputs:
     description: "The filesystem path to check"
     required: true
     default: ""
+  rebuild:
+    description: "If true, the lintball docker image will be rebuilt"
+    required: true
+    default: "false"
 runs:
   using: "composite"
   steps:
@@ -42,3 +46,4 @@ runs:
         INPUT_COMMITTISH: ${{ inputs.committish }}
         INPUT_DEFAULT_BRANCH: ${{ inputs.default-branch }}
         INPUT_WORKSPACE: ${{ inputs.workspace }}
+        INPUT_REBUILD: ${{ inputs.rebuild }}
