@@ -312,8 +312,8 @@ run_tool_shellcheck() {
 
       if [[ -n "$(cat "${patchfile}")" ]]; then
         # Fix patchfile - note this breaks on macos
-        sed -i 's/^--- a\/\.\//--- a\//' "${patchfile}"
-        sed -i 's/^+++ b\/\.\//+++ b\//' "${patchfile}"
+        sed -i 's|^--- a/\./|--- a/|' "${patchfile}"
+        sed -i 's|^+++ b/\./|+++ b/|' "${patchfile}"
         git apply "${patchfile}" 1>/dev/null
         printf " ↳ %s%s%s\n" "${tool}" "${DOTS:offset}" "wrote"
         status=0

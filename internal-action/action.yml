@@ -1,5 +1,5 @@
 # yamllint disable rule:line-length
-name: "Run lintball"
+name: "Run lintball (internal)"
 description: "Keep your entire project tidy with one github action"
 branding:
   icon: "align-left"

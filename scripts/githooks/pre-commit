@@ -1,0 +1,28 @@
+#!/usr/bin/env bash
+
+# Run lintball using Docker on git commit
+
+set -eu
+
+# Get the git workspace path
+workspace=$(git rev-parse --show-toplevel || true)
+if [[ -z ${workspace} ]]; then
+  echo "Could not determine git repository path" >&2
+  exit 1
+fi
+
+# Determine the version of lintball to use, default to latest
+# if no .lintball-version file exists
+lintball_version="$(cat .lintball-version || true)"
+if [[ -z ${lintball_version} ]]; then
+  lintball_version=latest
+fi
+
+# Prepend "v" to the version if needed
+if [[ ${lintball_version} =~ ^[0-9]+\.[0-9]+\.[0-9]+ ]]; then
+  lintball_version="v${lintball_version}"
+fi
+
+image=elijahru/lintball:$lintball_version
+
+docker run -v "${workspace}:/workspace" "${image}" lintball pre-commit

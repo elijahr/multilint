@@ -349,7 +349,7 @@ subcommand_install_githooks() {
     return 1
   fi
 
-  git_parent_dir=$(dirname "${git_dir}")
+  workspace_dir=$(dirname "${git_dir}") # foo if git_dir is foo/.git
   hooks_answer="${answer}"
   IFS= read -r current_hooks_path < <(git --git-dir="${git_dir}" config --local core.hooksPath) || true
   if [[ -n ${current_hooks_path} ]] && [[ -z ${hooks_answer} ]]; then
@@ -368,12 +368,18 @@ subcommand_install_githooks() {
   fi
 
   set +f
-  for hook in "${LINTBALL_DIR}/githooks/"*; do
-    dest="${git_parent_dir}/.githooks/$(basename "${hook}")"
+  for hook in "${LINTBALL_DIR}/scripts/githooks/"*; do
+    dest="${workspace_dir}/.githooks/$(basename "${hook}")"
     confirm_copy "src=${hook}" "dest=${dest}" "answer=${answer}" || return 1
   done
   set -f
 
+  lintball_version=$(jq --raw-output ".version" <"${LINTBALL_DIR}/package.json")
+  if [[ -n ${lintball_version} ]]; then
+    echo "${lintball_version}" >"${workspace_dir}/.lintball-version"
+  fi
+
+  git --git-dir="${git_dir}" add "${workspace_dir}/.lintball-version" 2>/dev/null 1>/dev/null || true
   git --git-dir="${git_dir}" config --local core.hooksPath ".githooks"
 
   echo

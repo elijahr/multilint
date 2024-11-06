@@ -1,6 +1,9 @@
 #!/usr/bin/env bash
 
-# Run lintball using Docker on git commit
+# Pre-commit hook that builds and runs local lintball Docker image.
+# This is used internally.
+# For the pre-commit hook that uses the Docker image from Docker Hub, see
+# scripts/githooks/pre-commit.
 
 set -eu
 
@@ -10,12 +13,7 @@ if [[ -z ${workspace} ]]; then
   exit 1
 fi
 
-if [[ -f "${workspace}/scripts/build-local-docker-image.sh" ]]; then
-  # This is lintball itself, build and use the local image
-  "${workspace}/scripts/build-local-docker-image.sh"
-  image=lintball:local
-else
-  image=elijahru/lintball:latest
-fi
+"${workspace}/scripts/build-local-docker-image.sh"
+image=lintball:local
 
 docker run -v "${workspace}:/workspace" "${image}" lintball pre-commit
