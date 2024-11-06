@@ -11,7 +11,8 @@ ENV LINTBALL_DIR=/lintball
 # Install minimal deps as quickly as possible
 RUN echo 'APT::Install-Suggests "0";' >> /etc/apt/apt.conf.d/99no-install-recommends && \
   echo 'APT::Install-Recommends "0";' >> /etc/apt/apt.conf.d/99no-install-recommends && \
-  apt update && apt install -y gnupg && \
+  apt update && apt install -y gnupg ca-certificates && \
+  update-ca-certificates && \
   echo "deb http://ppa.launchpad.net/apt-fast/stable/ubuntu jammy main" >> /etc/apt/sources.list.d/apt-fast.list && \
   echo "deb-src http://ppa.launchpad.net/apt-fast/stable/ubuntu jammy main" >> /etc/apt/sources.list.d/apt-fast.list && \
   apt-key adv --keyserver keyserver.ubuntu.com --recv-keys A2166B8DE8BDC3367D1901C11EE2FF37CA8DA16B && \
@@ -20,7 +21,7 @@ RUN echo 'APT::Install-Suggests "0";' >> /etc/apt/apt.conf.d/99no-install-recomm
   echo debconf apt-fast/aptmanager string apt-get | debconf-set-selections && \
   echo "deb-src http://deb.debian.org/debian bookworm main" >> /etc/apt/sources.list && \
   apt update && apt install -y apt-fast && apt-fast install -y \
-  build-essential bzip2 ca-certificates cmake coreutils curl gcc git libbz2-1.0 libbz2-dev libc6-dev libffi-dev libreadline-dev \
+  build-essential bzip2 cmake coreutils curl gcc git libbz2-1.0 libbz2-dev libc6-dev libffi-dev libreadline-dev \
   libssl3 libssl-dev libyaml-0-2 libyaml-dev lzma make ncurses-dev openssh-client openssl perl procps uuid xz-utils zlib1g zlib1g-dev && \
   rm -rf /var/lib/apt/lists/* && \
   rm -rf /tmp/* && \
