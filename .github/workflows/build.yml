@@ -27,6 +27,7 @@ jobs:
   build-and-push-docker-images:
     name: Build & Push Docker Images
     runs-on: ubuntu-latest
+    environment: "Lintball environment"
     needs: [lint, test]
     steps:
       - name: Checkout code
@@ -46,6 +47,7 @@ jobs:
   publish:
     name: Publish to NPM and make git tag alias
     runs-on: ubuntu-latest
+    environment: "Lintball environment"
     if: startsWith(github.ref, 'refs/tags/')
     needs: [build-and-push-docker-images]
     steps:
