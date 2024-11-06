@@ -8,17 +8,16 @@ cd "${LINTBALL_DIR}"
 
 source ./scripts/docker-tags.bash
 
-# build for the current platform with cache from all tags
-cache_from_args=(--cache-from=elijahru/lintball:git--devel)
-for tag in "${docker_tags[@]}"; do
-  cache_from_args+=(--cache-from="elijahru/lintball:${tag}")
-done
+if [ "${GITHUB_ACTIONS:-}" = "true" ]; then
+  progress_arg="--progress=plain"
+else
+  progress_arg=""
+fi
 
-# Remove duplicates from cache_from_args
-# shellcheck disable=SC2207
-cache_from_args=($(printf "%s\n" "${cache_from_args[@]}" | awk '!seen[$0]++'))
-
-docker build \
-  --tag lintball:local \
+set -x
+exec docker buildx build \
+  $progress_arg \
   "${cache_from_args[@]}" \
-  --file "${LINTBALL_DIR}/Dockerfile.slim" "${LINTBALL_DIR}"
+  --tag=lintball:local \
+  --file="${LINTBALL_DIR}/Dockerfile.slim" \
+  "${LINTBALL_DIR}"
