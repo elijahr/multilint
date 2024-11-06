@@ -30,7 +30,7 @@ esac
 source ./scripts/docker-tags.bash
 
 git_branch_or_tag_name=${GITHUB_REF_NAME:-$(git rev-parse --abbrev-ref HEAD)}
-if [[ ${git_branch_or_tag_name:-} =~ ^v?(([0-9]+)\.([0-9]+)\.([0-9]+)(-([a-zA-Z0-9-]+))?(\+([a-zA-Z0-9\.-]+))?)$ ]]; then
+if [[ ${git_branch_or_tag_name:-} =~ ^v([0-9]+) ]]; then
   # git tag, so push to all platforms
   push_platforms="linux/amd64,linux/arm64"
 else

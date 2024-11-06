@@ -45,15 +45,3 @@ jobs:
           password: ${{ secrets.DOCKERHUB_TOKEN }}
       - name: Build & Push
         run: ./scripts/build-and-push-docker-images.bash
-
-  publish:
-    name: Publish to NPM
-    runs-on: ubuntu-latest
-    environment: "Lintball environment"
-    if: startsWith(github.ref, 'refs/tags/')
-    needs: [build-and-push-docker-images]
-    steps:
-      - name: Publish to npm
-        run: npm publish
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
