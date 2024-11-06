@@ -39,9 +39,21 @@ Most software projects consist of more than one programming language. There's so
 | XML          | `*.xml`                                  |                                [prettier/plugin-xml][19]                                 |
 | YAML         | `*.yml`, `*.yaml`                        |                              [prettier][4], [yamllint][20]                               |
 
+## Installation: upgrading from v1
+
+lintball v1 was installed locally as an npm package and required a lengthy GitHub Actions Workflow.
+lintball v2 introduces dockerization and a GitHub Action.
+
+To upgrade a lintball v1 project to use lintball v2:
+
+1. Remove existing lint GitHub Actions workflow in `.github/workflows`.
+2. `rm -rf .githooks`
+
+Then follow the below instructions to install lintball v2.
+
 ## Installation: git pre-commit hook
 
-lintball runs in a docker container as a git pre-commit hook. To install the githook:
+lintball runs in a docker container as a git pre-commit hook. To install the hook:
 
 ```sh
 docker run --volume ".:/workspace" elijahru/lintball lintball install-githooks
@@ -49,7 +61,7 @@ docker run --volume ".:/workspace" elijahru/lintball lintball install-githooks
 
 This will run the linters and formatters automatically when you make a git commit.
 
-If any issues are found which cannot be automatically fixed, the commit will be prevented and an error message will be shown.
+If any issues are found which cannot be automatically fixed, the commit will be blocked and an error message will be shown indicating any necessary changes.
 
 ## Installation: GitHub Actions
 
@@ -62,8 +74,6 @@ name: Lint
 
 # yamllint disable rule:truthy
 on:
-  pull_request:
-    branches: ["*"]
   push:
     branches: ["*"]
     tags: ["*"]
@@ -72,15 +82,12 @@ on:
 jobs:
   lint:
     name: lint
-
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
         with:
           fetch-depth: 0 # This is necessary for linting only recent changes
-
       - name: Run lintball
         uses: elijahr/lintball@v2
 ```
