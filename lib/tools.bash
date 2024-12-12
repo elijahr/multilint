@@ -32,9 +32,9 @@ run_tool() {
 
   if [[ $mode == "check" ]]; then
     if [[ ${status} -gt 0 ]]; then
-      printf " ↳ %s%s%s\n" "${tool}" "${DOTS:offset}" "❌"
-      cat "${stdout}" 2>/dev/null
-      cat "${stderr}" 1>&2
+      printf " ↳ %s%s%s\n" "${tool}" "${DOTS:offset}" "❌ see below"
+      cat "${stdout}"
+      cat "${stderr}"
     else
       printf " ↳ %s%s%s\n" "${tool}" "${DOTS:offset}" "ok"
     fi
@@ -46,9 +46,9 @@ run_tool() {
           [[ "$(head -n2 "${stdout}" | tail -n 1 | head -c4)" == "+++ " ]]
       }; then
         # Some error message or diff
-        printf " ↳ %s%s%s\n" "${tool}" "${DOTS:offset}" "❌"
-        cat "${stdout}" 2>/dev/null
-        cat "${stderr}" 1>&2
+        printf " ↳ %s%s%s\n" "${tool}" "${DOTS:offset}" "❌ see below"
+        cat "${stdout}"
+        cat "${stderr}"
         status=1
       else
         printf " ↳ %s%s%s\n" "${tool}" "${DOTS:offset}" "ok"
@@ -110,15 +110,16 @@ run_tool_prettier() {
       if [[ "$(cat "${path}")" == "$(cat "${stdout}")" ]]; then
         printf " ↳ %s%s%s\n" "${tool}" "${DOTS:offset}" "ok"
       else
-        printf " ↳ %s%s%s\n" "${tool}" "${DOTS:offset}" "❌"
+        printf " ↳ %s%s%s\n" "${tool}" "${DOTS:offset}" "❌ see below"
         diff -u "${path}" "${stdout}"
+        cat "${stderr}"
         status=1
       fi
     fi
   else
-    printf " ↳ %s%s%s\n" "${tool}" "${DOTS:offset}" "❌"
-    cat "${stdout}" 2>/dev/null
-    cat "${stderr}" 1>&2
+    printf " ↳ %s%s%s\n" "${tool}" "${DOTS:offset}" "❌ see below"
+    cat "${stdout}"
+    cat "${stderr}"
   fi
   rm "${stdout}"
   rm "${stderr}"
@@ -176,9 +177,9 @@ run_tool_eslint() {
       printf " ↳ %s%s%s\n" "${tool}" "${DOTS:offset}" "ok"
     fi
   else
-    printf " ↳ %s%s%s\n" "${tool}" "${DOTS:offset}" "❌"
-    cat "${stdout}" 2>/dev/null
-    cat "${stderr}" 1>&2
+    printf " ↳ %s%s%s\n" "${tool}" "${DOTS:offset}" "❌ see below"
+    cat "${stdout}"
+    cat "${stderr}"
   fi
   rm "${tmp}"
   rm "${stdout}"
@@ -214,9 +215,9 @@ run_tool_shfmt() {
 
   if [[ $mode == "check" ]]; then
     if [[ ${status} -gt 0 ]]; then
-      printf " ↳ %s%s%s\n" "${tool}" "${DOTS:offset}" "❌"
-      cat "${stdout}" 2>/dev/null
-      cat "${stderr}" 1>&2
+      printf " ↳ %s%s%s\n" "${tool}" "${DOTS:offset}" "❌ see below"
+      cat "${stdout}"
+      cat "${stderr}"
     else
       printf " ↳ %s%s%s\n" "${tool}" "${DOTS:offset}" "ok"
     fi
@@ -228,9 +229,9 @@ run_tool_shfmt() {
           [[ "$(head -n2 "${stdout}" | tail -n 1 | head -c4)" == "+++ " ]]
       }; then
         # Some error message or diff
-        printf " ↳ %s%s%s\n" "${tool}" "${DOTS:offset}" "❌"
-        cat "${stdout}" 2>/dev/null
-        cat "${stderr}" 1>&2
+        printf " ↳ %s%s%s\n" "${tool}" "${DOTS:offset}" "❌ see below"
+        cat "${stdout}"
+        cat "${stderr}"
         status=1
       else
         printf " ↳ %s%s%s\n" "${tool}" "${DOTS:offset}" "ok"
@@ -320,17 +321,18 @@ run_tool_shellcheck() {
       else
         if [[ -n "$(cat "${patcherr}")" ]]; then
           # not patchable, show output from initial shellcheck run
-          printf " ↳ %s%s%s\n" "${tool}" "${DOTS:offset}" "❌"
+          printf " ↳ %s%s%s\n" "${tool}" "${DOTS:offset}" "❌ see below"
           cat "${stdout}"
+          cat "${stderr}"
         else
           printf " ↳ %s%s%s\n" "${tool}" "${DOTS:offset}" "unknown error"
         fi
       fi
     else
       # not patchable, show error
-      printf " ↳ %s%s%s\n" "${tool}" "${DOTS:offset}" "❌"
-      cat "${stdout}" 2>/dev/null
-      cat "${stderr}" 1>&2
+      printf " ↳ %s%s%s\n" "${tool}" "${DOTS:offset}" "❌ see below"
+      cat "${stdout}"
+      cat "${stderr}"
     fi
   fi
   rm "${stdout}"

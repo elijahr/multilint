@@ -19,8 +19,8 @@ teardown() {
   assert_failure
   assert_line "a.json"
   assert_line "a.yml"
-  assert [ "$(echo "${output}" | grep -cF " ↳ prettier...........................❌" -c)" -eq 2 ]
-  assert [ "$(echo "${output}" | grep -cF " ↳ yamllint...........................❌" -c)" -eq 1 ]
+  assert [ "$(echo "${output}" | grep -cF " ↳ prettier...........................❌ see below" -c)" -eq 2 ]
+  assert [ "$(echo "${output}" | grep -cF " ↳ yamllint...........................❌ see below" -c)" -eq 1 ]
   run lintball fix # 3>&-
   assert_success
   assert [ "$(echo "${output}" | grep -cF " ↳ prettier...........................wrote" -c)" -eq 2 ]
