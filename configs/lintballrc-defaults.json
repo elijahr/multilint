@@ -25,7 +25,7 @@
       "--check",
       "{{path}}"
     ],
-    "docformatter": ["{{tool}}", "--check", "{{path}}"],
+    "docformatter": ["{{tool}}", "--diff", "--check", "{{path}}"],
     "eslint": [
       "npm",
       "--prefix={{lintball_dir}}/tools",
